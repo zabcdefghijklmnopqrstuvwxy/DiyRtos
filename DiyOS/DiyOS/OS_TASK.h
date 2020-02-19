@@ -12,8 +12,6 @@
 #ifndef _OS_TASK_H_
 #define _OS_TASK_H_
 
-
-
 /**
 *@brief 任务数据结构
 */
@@ -31,7 +29,15 @@ extern tTask *nextTask;			 /**< 下一个任务全局变量 */
  * @retval 无
  */
 void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,unsigned int *stack);
-	
+
+/**
+ * @brief 系统时钟设置
+ * @param[in] ms 定时器设置时钟时间 单位ms
+ * @note None
+ * @retval None
+*/
+void OS_TASK_SetSysTickPeriod(unsigned int ms);
+
 /**
  * @brief 运行第一个多任务
  * @param 无
@@ -41,14 +47,11 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,unsigned int *sta
 void OS_TASK_RunFirst(void);
 
 /**
- * @brief 触发PendSV中断
+ * @brief 运行第一个多任务
  * @param 无
- * @note 通过触发PendSV中断进行任务切换
+ * @note 无
  * @retval 无
  */
-void OS_TASK_Switch(void);
-
-
-
+void OS_TASK_Sched(void);
 
 #endif

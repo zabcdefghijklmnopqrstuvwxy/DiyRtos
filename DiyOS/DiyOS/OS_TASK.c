@@ -36,6 +36,7 @@ p_tTask taskTable[32];
 * @brief 任务切换
 * @param 无
 * @note 内嵌汇编，将当前函数的参数变量入栈，将之前的函数的参数变量出栈
+* 如果LR=0xFFFFFFF9说明产生异常的时候使用的是MSP，如果LR=0xFFFFFFFD明产生异常的时候使用的是PSP
 * @return 无
 */
 __asm void PendSV_Handler()
@@ -108,6 +109,62 @@ void OS_TASK_TriggerPendSVC(void)
 } 
 
 /**
+ * @brief 触发PendSV中断
+ * @param 无
+ * @note 通过触发PendSV中断进行任务切换
+ * @retval 无
+ */
+void OS_TASK_Switch(void)
+{
+		MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
+}
+
+/**
+ * @brief 运行第一个多任务
+ * @param 无
+ * @note 无
+ * @retval 无
+ */
+void OS_TASK_Sched(void)
+{
+		if(currentTask == taskTable[0])
+		{
+				nextTask = taskTable[1];
+		}
+		else
+		{
+				nextTask = taskTable[0];
+		}
+		
+		OS_TASK_Switch();
+}
+
+/**
+* @brief 系统时钟中断函数
+* @param 无
+* @note 无
+* @return 无
+*/
+void SysTick_Handler(void)
+{
+	//	OS_TASK_Sched();
+}
+
+/**
+ * @brief 系统时钟设置
+ * @param[in] ms 定时器设置时钟时间 单位ms
+ * @note None
+ * @retval None
+*/
+void OS_TASK_SetSysTickPeriod(unsigned int ms)
+{
+	SysTick->LOAD = ms * SystemCoreClock /1000 -1;  //初始化重载计数器寄存器值
+	NVIC_SetPriority(SysTick_IRQn,(1 << __NVIC_PRIO_BITS) - 1);
+	SysTick->VAL = 0;                               //递减寄存器值
+	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
+}
+
+/**
  * @brief 运行第一个多任务
  * @param 无
  * @note 无
@@ -119,13 +176,3 @@ void OS_TASK_RunFirst(void)
 	  OS_TASK_TriggerPendSVC();	
 }
 
-/**
- * @brief 触发PendSV中断
- * @param 无
- * @note 通过触发PendSV中断进行任务切换
- * @retval 无
- */
-void OS_TASK_Switch(void)
-{
-		MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
-}

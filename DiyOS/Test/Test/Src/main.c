@@ -52,8 +52,8 @@
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 
-unsigned int task1Env[1024];
-unsigned int task2Env[1024];
+unsigned int task1Env[1028];
+unsigned int task2Env[1028];
 
 tTask tTask1;
 tTask tTask2;
@@ -69,21 +69,20 @@ extern p_tTask taskTable[32];
 /* USER CODE END 0 */
 void delay(unsigned int unDelay)
 {
-		while(unDelay--)
-		{
-				for(unsigned int i = 0; i < 1000; i++);
-		}
+		while(unDelay--);
 }
 
 void task1(void *param)
 {
 		static unsigned int unFlag1 = 0;
+	  OS_TASK_SetSysTickPeriod(10);
 		while(1)
 		{
 				unFlag1 = 1;
-				delay(1000);
+				delay(10);
 				unFlag1 = 0;
-				delay(1000);
+				delay(10);
+				OS_TASK_Sched();
 		}
 }
 
@@ -93,9 +92,10 @@ void task2(void *param)
 		while(1)
 		{
 				unFlag2 = 1;
-				delay(1000);
+				delay(10);
 				unFlag2 = 0;
-				delay(1000);
+				delay(10);
+				OS_TASK_Sched();
 		}
 }
 
