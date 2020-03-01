@@ -17,10 +17,12 @@
 */
 typedef struct _tTask{
 		unsigned int *stack;    /**< 独立栈指针 */
+	  unsigned int unDelay;   /**< 任务延时计数 */
 }tTask,*p_tTask;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */
 extern tTask *nextTask;			 /**< 下一个任务全局变量 */
+extern tTask *idleTask;      /**< 空闲任务全局变量 */
 
 /**
  * @brief 任务初始化函数
@@ -53,5 +55,13 @@ void OS_TASK_RunFirst(void);
  * @retval 无
  */
 void OS_TASK_Sched(void);
+
+/**
+ * @brief 任务延时函数
+ * @param[in] delay 延时计数时间
+ * @note 通过Sys_Tick中断对delay进行自减，当自减至0
+ * @retval 无
+ */
+void OS_TASK_Delay(unsigned int delay);
 
 #endif

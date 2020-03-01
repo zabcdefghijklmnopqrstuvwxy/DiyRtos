@@ -30,6 +30,7 @@
 	
 tTask *currentTask;   /**< 当前任务全局变量 */
 tTask *nextTask;			/**< 下一个任务全局变量 */
+tTask *idleTask;
 p_tTask taskTable[32];
 
 /**
@@ -94,6 +95,7 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,unsigned int *sta
 	*(--stack) = (unsigned long)0x4;		   //保存R4寄存器值
 
 	task->stack = stack;					         //保存任务的独立栈
+	task->unDelay = 0;                     //初始化延时计数
 }
 
 /**
@@ -120,24 +122,70 @@ void OS_TASK_Switch(void)
 }
 
 /**
- * @brief 运行第一个多任务
+ * @brief 任务调度函数
  * @param 无
- * @note 无
+ * @note 将下一个任务赋予当前任务用于切换，
  * @retval 无
  */
 void OS_TASK_Sched(void)
-{
-		if(currentTask == taskTable[0])
+{	
+		int i = 0;
+		if(currentTask == idleTask)
 		{
-				nextTask = taskTable[1];
+				for(i = 0; i < 2; i++)
+			  {
+						if(0 == taskTable[i]->unDelay)
+						{
+								nextTask = taskTable[i];
+							  break;
+						}
+				}
+				
+				if(i >= 2)
+				{
+						return ;
+				}
 		}
 		else
 		{
-				nextTask = taskTable[0];
-		}
+			  for(i = 0; i < 2; i++)
+				{
+						if(0 == taskTable[i]->unDelay)
+						{
+								nextTask = taskTable[i];
+							  break;
+						}
+				}
+				
+				if(i >= 2)
+				{
+						nextTask = idleTask;
+				}
+		}	
 		
 		OS_TASK_Switch();
 }
+
+/**
+ * @brief 系统时钟中断任务切换
+ * @param 无
+ * @note 当前任务延时计数进行自减
+ * @retval 无
+ */
+void OS_TASK_SystemTickHandler(void)
+{
+		int i = 0;
+	  for(i = 0; i < 2; i++)
+		{
+			  if(taskTable[i]->unDelay)
+				{
+					  taskTable[i]->unDelay--;
+				}
+		}
+		
+		OS_TASK_Sched();
+}
+
 
 /**
 * @brief 系统时钟中断函数
@@ -147,7 +195,7 @@ void OS_TASK_Sched(void)
 */
 void SysTick_Handler(void)
 {
-		OS_TASK_Sched();
+		OS_TASK_SystemTickHandler();
 }
 
 /**
@@ -174,5 +222,16 @@ void OS_TASK_RunFirst(void)
 {
 		__set_PSP(0);
 	  OS_TASK_TriggerPendSVC();	
+}
+
+/**
+ * @brief 任务延时函数
+ * @param[in] delay 延时计数时间
+ * @note 通过Sys_Tick中断对delay进行自减，当自减至0
+ * @retval 无
+ */
+void OS_TASK_Delay(unsigned int delay)
+{
+		currentTask->unDelay = delay;
 }
 

@@ -58,6 +58,10 @@ unsigned int task2Env[1024];
 tTask tTask1;
 tTask tTask2;
 
+tTask tTaskIdle;
+unsigned int taskIdleEnv[1024];
+
+
 extern p_tTask taskTable[32];
 /* USER CODE BEGIN PFP */
 
@@ -79,9 +83,11 @@ void task1(void *param)
 		while(1)
 		{
 				unFlag1 = 1;
-				delay(100);
+			  OS_TASK_Delay(10);
+				//delay(100);
 				unFlag1 = 0;
-				delay(100);
+			  OS_TASK_Delay(10);
+				//delay(100);
 		}
 }
 
@@ -91,9 +97,19 @@ void task2(void *param)
 		while(1)
 		{
 				unFlag2 = 1;
-				delay(100);
+			  OS_TASK_Delay(10);
+				//delay(100);
 				unFlag2 = 0;
-				delay(100);
+			  OS_TASK_Delay(10);
+				//delay(100);
+		}
+}
+
+void taskIdle(void *param)
+{
+		for(;;)
+		{
+		
 		}
 }
 
@@ -134,11 +150,13 @@ int main(void)
 	
 	OS_TASK_Init(&tTask1,task1,(void*)0x11111111,&task1Env[1024]);
 	OS_TASK_Init(&tTask2,task2,(void*)0x22222222,&task2Env[1024]);
+	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,&taskIdleEnv[1024]);
 	
 	taskTable[0] = &tTask1;
 	taskTable[1] = &tTask2;
 	
 	nextTask = taskTable[0];
+	idleTask = &tTaskIdle;
 	
 	OS_TASK_RunFirst();
 	
