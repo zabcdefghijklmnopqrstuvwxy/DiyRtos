@@ -64,4 +64,20 @@ void OS_TASK_Sched(void);
  */
 void OS_TASK_Delay(unsigned int delay);
 
+/**
+ * @brief 临界区进入
+ * @param None
+ * @note 关闭中断，如此一来外部中断和任务切换都不会打断临界区执行，直至中断使能
+ * @retval 返回中断状态值
+ */
+unsigned int OS_TASK_EnterCritical(void);
+
+/**
+ * @brief 临界区退出
+ * @param[in] status 中断状态值
+ * @note 此函数应与OS_TASK_EnterCritical配合使用
+ * @retval None
+ */
+void OS_TASK_ExitCritical(unsigned int status);
+
 #endif

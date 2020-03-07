@@ -55,14 +55,14 @@ static void MX_GPIO_Init(void);
 unsigned int task1Env[1024];
 unsigned int task2Env[1024];
 
-tTask tTask1;
-tTask tTask2;
+tTask tTask1;         //任务1信息
+tTask tTask2;				  //任务2信息		
+tTask tTaskIdle;      //空闲任务信息
+unsigned int taskIdleEnv[1024];  //空闲任务栈
+extern p_tTask taskTable[32];    //任务表
 
-tTask tTaskIdle;
-unsigned int taskIdleEnv[1024];
+unsigned int unTickCount;
 
-
-extern p_tTask taskTable[32];
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -79,15 +79,22 @@ void delay(unsigned int unDelay)
 void task1(void *param)
 {
 		static unsigned int unFlag1 = 0;
+		unsigned int i = 0;
+	  unsigned int unCount = 0; 
+	  unsigned int unIntStatus = 0;
 	  OS_TASK_SetSysTickPeriod(10);
 		while(1)
 		{
 				unFlag1 = 1;
 			  OS_TASK_Delay(10);
-				//delay(100);
 				unFlag1 = 0;
 			  OS_TASK_Delay(10);
-				//delay(100);
+		
+      unIntStatus = OS_TASK_EnterCritical();			
+			unCount = unTickCount;
+			delay(0x1fffff);                  //延迟函数，模拟等待任务切换，观察临界区变量发生变化
+		  unTickCount = unCount + 1;	
+			OS_TASK_ExitCritical(unIntStatus);
 		}
 }
 
@@ -98,10 +105,8 @@ void task2(void *param)
 		{
 				unFlag2 = 1;
 			  OS_TASK_Delay(10);
-				//delay(100);
 				unFlag2 = 0;
 			  OS_TASK_Delay(10);
-				//delay(100);
 		}
 }
 
