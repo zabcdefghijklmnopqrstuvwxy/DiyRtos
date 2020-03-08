@@ -11,6 +11,7 @@
 */
 
 #include "OS_TASK.h"
+#include "OS_MUTEX.h"
 
 #ifdef USE_STM32F1
 #include "stm32f1xx_hal.h"
@@ -33,7 +34,8 @@ tTask *nextTask;			/**< 下一个任务全局变量 */
 tTask *idleTask;
 p_tTask taskTable[32];
 
-extern unsigned int unTickCount;
+/*调度锁*/
+static unsigned int gunSchedule;
 
 /**
 * @brief 任务切换
@@ -132,6 +134,12 @@ void OS_TASK_Switch(void)
 void OS_TASK_Sched(void)
 {	
 		int i = 0;
+	
+	  if(gunSchedule)
+		{
+				return ;
+		}
+	
 		if(currentTask == idleTask)
 		{
 				for(i = 0; i < 2; i++)
@@ -198,7 +206,6 @@ void OS_TASK_SystemTickHandler(void)
 void SysTick_Handler(void)
 {
 		OS_TASK_SystemTickHandler();
-		unTickCount++;
 }
 
 /**
@@ -236,6 +243,7 @@ void OS_TASK_RunFirst(void)
 void OS_TASK_Delay(unsigned int delay)
 {
 		currentTask->unDelay = delay;
+		OS_TASK_Sched();
 }
 
 /**
@@ -264,3 +272,48 @@ void OS_TASK_ExitCritical(unsigned int status)
 		__set_PRIMASK(status);
 }
 
+/**
+ * @brief 调度锁初始化
+ * @param 无
+ * @note 调度锁计数器初始化
+ * @retval 无
+ */
+void OS_TASK_ScheduleInit(void)
+{
+		gunSchedule = 0;
+}
+
+/**
+ * @brief 调度锁使能
+ * @param 无
+ * @note 调度锁使能，调度锁计数器自加
+ * @retval 无
+ */
+void OS_TASK_ScheduleEnable(void)
+{
+	  unsigned int unStatus = 0;
+		unStatus = OS_TASK_EnterCritical();
+	
+	  gunSchedule++;
+	
+	  OS_TASK_ExitCritical(unStatus);
+}	
+
+/**
+ * @brief 调度锁不使能
+ * @param 无
+ * @note 调度锁不使能，调度锁计数器自减
+ * @retval 无
+ */
+void OS_TASK_ScheduleDisable(void)
+{
+		unsigned int unStatus = 0;
+		unStatus = OS_TASK_EnterCritical();
+	
+	  if(gunSchedule > 0)
+		{
+				gunSchedule--;
+		}
+	
+	  OS_TASK_ExitCritical(unStatus);
+}

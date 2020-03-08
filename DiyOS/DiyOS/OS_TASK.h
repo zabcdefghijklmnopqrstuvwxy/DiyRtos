@@ -80,4 +80,28 @@ unsigned int OS_TASK_EnterCritical(void);
  */
 void OS_TASK_ExitCritical(unsigned int status);
 
+/**
+ * @brief 调度锁初始化
+ * @param 无
+ * @note 调度锁计数器初始化
+ * @retval 无
+ */
+void OS_TASK_ScheduleInit(void);
+
+/**
+ * @brief 调度锁使能
+ * @param 无
+ * @note 调度锁使能，调度锁计数器自加
+ * @retval 无
+ */
+void OS_TASK_ScheduleEnable(void);
+
+/**
+ * @brief 调度锁不使能
+ * @param 无
+ * @note 调度锁不使能，调度锁计数器自减
+ * @retval 无
+ */
+void OS_TASK_ScheduleDisable(void);
+
 #endif

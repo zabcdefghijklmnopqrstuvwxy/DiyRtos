@@ -1,5 +1,6 @@
 test\os_task.o: ..\..\..\DiyOS\OS_TASK.c
 test\os_task.o: ..\..\..\DiyOS\OS_TASK.h
+test\os_task.o: ..\..\..\DiyOS\OS_MUTEX.h
 test\os_task.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 test\os_task.o: ../Inc/stm32f1xx_hal_conf.h
 test\os_task.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h

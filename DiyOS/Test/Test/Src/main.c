@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "OS_TASK.h"
+#include "OS_MUTEX.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,7 +62,7 @@ tTask tTaskIdle;      //空闲任务信息
 unsigned int taskIdleEnv[1024];  //空闲任务栈
 extern p_tTask taskTable[32];    //任务表
 
-unsigned int unTickCount;
+unsigned int unShareCount;
 
 /* USER CODE BEGIN PFP */
 
@@ -79,9 +80,7 @@ void delay(unsigned int unDelay)
 void task1(void *param)
 {
 		static unsigned int unFlag1 = 0;
-		unsigned int i = 0;
-	  unsigned int unCount = 0; 
-	  unsigned int unIntStatus = 0;
+	  unsigned int unVar = 0;
 	  OS_TASK_SetSysTickPeriod(10);
 		while(1)
 		{
@@ -89,12 +88,13 @@ void task1(void *param)
 			  OS_TASK_Delay(10);
 				unFlag1 = 0;
 			  OS_TASK_Delay(10);
-		
-      unIntStatus = OS_TASK_EnterCritical();			
-			unCount = unTickCount;
-			delay(0x1fffff);                  //延迟函数，模拟等待任务切换，观察临界区变量发生变化
-		  unTickCount = unCount + 1;	
-			OS_TASK_ExitCritical(unIntStatus);
+         
+				OS_TASK_ScheduleEnable();  //调度锁上锁
+        unVar = unShareCount;
+			  OS_TASK_Delay(10);
+        unVar = unVar + 1;
+				unShareCount = unVar;	
+        OS_TASK_ScheduleDisable(); //调度锁解锁	
 		}
 }
 
@@ -107,6 +107,9 @@ void task2(void *param)
 			  OS_TASK_Delay(10);
 				unFlag2 = 0;
 			  OS_TASK_Delay(10);
+			  OS_TASK_ScheduleEnable();   //调度锁上锁
+			  unShareCount++;
+			  OS_TASK_ScheduleDisable();  //调度锁解锁
 		}
 }
 
@@ -146,6 +149,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+	OS_TASK_ScheduleInit();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
