@@ -20,6 +20,7 @@
 "test\os_mutex.o"
 "test\os_sem.o"
 "test\os_task.o"
+"test\os_com.o"
 --library_type=microlib --strict --scatter "Test\Test.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -507,6 +507,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\DiyOS\OS_TASK.c</FilePath>
             </File>
+            <File>
+              <FileName>OS_COM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\DiyOS\OS_COM.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

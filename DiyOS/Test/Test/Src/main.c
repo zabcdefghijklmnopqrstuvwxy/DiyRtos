@@ -21,7 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "OS_TASK.h"
-#include "OS_MUTEX.h"
+#include "OS_COM.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -80,8 +80,11 @@ void delay(unsigned int unDelay)
 void task1(void *param)
 {
 		static unsigned int unFlag1 = 0;
-	  unsigned int unVar = 0;
+	  unsigned int unPri = 0;
+	  tBitmap bitmap;
 	  OS_TASK_SetSysTickPeriod(10);
+	   
+	  OS_COM_InitBitmap(&bitmap);
 		while(1)
 		{
 				unFlag1 = 1;
@@ -89,12 +92,11 @@ void task1(void *param)
 				unFlag1 = 0;
 			  OS_TASK_Delay(10);
          
-				OS_TASK_ScheduleEnable();  //调度锁上锁
-        unVar = unShareCount;
-			  OS_TASK_Delay(10);
-        unVar = unVar + 1;
-				unShareCount = unVar;	
-        OS_TASK_ScheduleDisable(); //调度锁解锁	
+			  OS_COM_SetBitmap(&bitmap,3);
+			  OS_COM_SetBitmap(&bitmap,6);
+			  OS_COM_SetBitmap(&bitmap,1);
+			  
+			  unPri = OS_COM_GetFirstBit(&bitmap);
 		}
 }
 
@@ -107,9 +109,6 @@ void task2(void *param)
 			  OS_TASK_Delay(10);
 				unFlag2 = 0;
 			  OS_TASK_Delay(10);
-			  OS_TASK_ScheduleEnable();   //调度锁上锁
-			  unShareCount++;
-			  OS_TASK_ScheduleDisable();  //调度锁解锁
 		}
 }
 

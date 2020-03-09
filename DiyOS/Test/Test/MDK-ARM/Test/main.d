@@ -24,4 +24,4 @@ test\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 test\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 test\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 test\main.o: ..\..\..\DiyOS\OS_TASK.h
-test\main.o: ..\..\..\DiyOS\OS_MUTEX.h
+test\main.o: ..\..\..\DiyOS\OS_COM.h
