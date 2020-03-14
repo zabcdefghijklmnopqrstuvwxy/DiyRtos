@@ -158,7 +158,7 @@
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>stack</ItemText>
+          <ItemText>tBitmap</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
@@ -168,7 +168,7 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>unIntStatus</ItemText>
+          <ItemText>tmptask</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -469,7 +469,7 @@
 
   <Group>
     <GroupName>DiyOS</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

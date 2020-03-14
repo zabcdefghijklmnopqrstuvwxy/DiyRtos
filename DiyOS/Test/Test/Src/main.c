@@ -81,22 +81,13 @@ void task1(void *param)
 {
 		static unsigned int unFlag1 = 0;
 	  unsigned int unPri = 0;
-	  tBitmap bitmap;
 	  OS_TASK_SetSysTickPeriod(10);
-	   
-	  OS_COM_InitBitmap(&bitmap);
 		while(1)
 		{
 				unFlag1 = 1;
-			  OS_TASK_Delay(10);
+			  OS_TASK_Delay(7);
 				unFlag1 = 0;
-			  OS_TASK_Delay(10);
-         
-			  OS_COM_SetBitmap(&bitmap,3);
-			  OS_COM_SetBitmap(&bitmap,6);
-			  OS_COM_SetBitmap(&bitmap,1);
-			  
-			  unPri = OS_COM_GetFirstBit(&bitmap);
+			  OS_TASK_Delay(23);         			  
 		}
 }
 
@@ -106,17 +97,18 @@ void task2(void *param)
 		while(1)
 		{
 				unFlag2 = 1;
-			  OS_TASK_Delay(10);
+			  OS_TASK_Delay(17);
 				unFlag2 = 0;
-			  OS_TASK_Delay(10);
+			  OS_TASK_Delay(13);
 		}
 }
 
 void taskIdle(void *param)
 {
+	  static unsigned int unCnt = 0;
 		for(;;)
 		{
-		
+			 unCnt++;
 		}
 }
 
@@ -156,16 +148,11 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	
-	OS_TASK_Init(&tTask1,task1,(void*)0x11111111,&task1Env[1024]);
-	OS_TASK_Init(&tTask2,task2,(void*)0x22222222,&task2Env[1024]);
-	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,&taskIdleEnv[1024]);
+	OS_TASK_Init(&tTask1,task1,(void*)0x11111111,TASKPRI0,&task1Env[1024]);
+	OS_TASK_Init(&tTask2,task2,(void*)0x22222222,TASKPRI1,&task2Env[1024]);
+	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,TASKPRI31,&taskIdleEnv[1024]);
 	
-	taskTable[0] = &tTask1;
-	taskTable[1] = &tTask2;
-	
-	nextTask = taskTable[0];
-	idleTask = &tTaskIdle;
-	
+	nextTask = OS_TASK_HighestReadyTask();
 	OS_TASK_RunFirst();
 	
   while (1);

@@ -40,7 +40,7 @@ unsigned char bitmaptable[] =
  * @note 将位图数据清零
  * @retval 无
  */
-void OS_COM_InitBitmap(p_tBitmap pbitmap)
+void OS_COM_InitBitmap(p_tBitmap_t pbitmap)
 {
 	pbitmap->unBitmap = 0;
 }
@@ -51,7 +51,7 @@ void OS_COM_InitBitmap(p_tBitmap pbitmap)
  * @note 将pos与位图进行或运算
  * @retval 无
  */
-void OS_COM_SetBitmap(p_tBitmap pbitmap,unsigned int pos)
+void OS_COM_SetBitmap(p_tBitmap_t pbitmap,unsigned int pos)
 {
 	 pbitmap->unBitmap = pbitmap->unBitmap | (1 << pos);
 }
@@ -62,7 +62,7 @@ void OS_COM_SetBitmap(p_tBitmap pbitmap,unsigned int pos)
  * @note 无
  * @retval 无
  */
-void OS_COM_ClrBitmap(p_tBitmap pbitmap,unsigned int pos)
+void OS_COM_ClrBitmap(p_tBitmap_t pbitmap,unsigned int pos)
 {
 	pbitmap->unBitmap = pbitmap->unBitmap & (~(1 << pos));
 }
@@ -73,7 +73,7 @@ void OS_COM_ClrBitmap(p_tBitmap pbitmap,unsigned int pos)
  * @note 从位图查找表中查找第一个置一的位置，默认0为最高31为最低
  * @retval 无
  */
-unsigned int OS_COM_GetFirstBit(p_tBitmap pbitmap)
+unsigned int OS_COM_GetFirstBit(p_tBitmap_t pbitmap)
 {
 	  unsigned int unPos = 0xff;
 		if(pbitmap->unBitmap & 0xff)

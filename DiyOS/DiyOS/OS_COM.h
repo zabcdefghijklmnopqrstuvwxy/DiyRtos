@@ -17,7 +17,7 @@
 */
 typedef struct _BITMAP{
 		unsigned int unBitmap;    /**< 位图数据表 */    
-}tBitmap,*p_tBitmap;
+}tBitmap_t,*p_tBitmap_t;
 
 /**
  * @brief 位图初始化
@@ -25,7 +25,7 @@ typedef struct _BITMAP{
  * @note 将位图数据清零
  * @retval 无
  */
-void OS_COM_InitBitmap(p_tBitmap pbitmap);
+void OS_COM_InitBitmap(p_tBitmap_t pbitmap);
 
 /**
  * @brief 设置位图
@@ -33,7 +33,7 @@ void OS_COM_InitBitmap(p_tBitmap pbitmap);
  * @note 将pos与位图进行或运算
  * @retval 无
  */
-void OS_COM_SetBitmap(p_tBitmap pbitmap,unsigned int pos);
+void OS_COM_SetBitmap(p_tBitmap_t pbitmap,unsigned int pos);
 
 /**
  * @brief 清除位图
@@ -41,7 +41,7 @@ void OS_COM_SetBitmap(p_tBitmap pbitmap,unsigned int pos);
  * @note 无
  * @retval 无
  */
-void OS_COM_ClrBitmap(p_tBitmap pbitmap,unsigned int pos);
+void OS_COM_ClrBitmap(p_tBitmap_t pbitmap,unsigned int pos);
 
 /**
  * @brief 获取第一个位置
@@ -49,7 +49,7 @@ void OS_COM_ClrBitmap(p_tBitmap pbitmap,unsigned int pos);
  * @note 从位图查找表中查找第一个置一的位置，默认0为最高31为最低
  * @retval 无
  */
-unsigned int OS_COM_GetFirstBit(p_tBitmap pbitmap);
+unsigned int OS_COM_GetFirstBit(p_tBitmap_t pbitmap);
 
 
 #endif

@@ -27,27 +27,20 @@ Project File Date:  03/08/2020
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\software\Keil\ARM\ARMCC\Bin'
 Build target 'Test'
-compiling OS_COM.c...
-..\..\..\DiyOS\OS_COM.h(55): warning:  #1-D: last line of file ends without a newline
-  #endif
-..\..\..\DiyOS\OS_COM.c(97): warning:  #1-D: last line of file ends without a newline
-  }
-..\..\..\DiyOS\OS_COM.c: 2 warnings, 0 errors
 compiling main.c...
 ..\..\..\DiyOS\OS_COM.h(55): warning:  #1-D: last line of file ends without a newline
   #endif
 ../Src/main.c(82): warning:  #550-D: variable "unFlag1"  was set but never used
   		static unsigned int unFlag1 = 0;
-../Src/main.c(83): warning:  #550-D: variable "unPri"  was set but never used
+../Src/main.c(83): warning:  #177-D: variable "unPri"  was declared but never referenced
   	  unsigned int unPri = 0;
-../Src/main.c(105): warning:  #550-D: variable "unFlag2"  was set but never used
+../Src/main.c(96): warning:  #550-D: variable "unFlag2"  was set but never used
   		static unsigned int unFlag2 = 0;
 ../Src/main.c: 4 warnings, 0 errors
-compiling OS_TASK.c...
 linking...
-Program Size: Code=3604 RO-data=360 RW-data=324 ZI-data=13444  
+Program Size: Code=3668 RO-data=360 RW-data=308 ZI-data=13476  
 FromELF: creating hex file...
-"Test\Test.axf" - 0 Error(s), 6 Warning(s).
+"Test\Test.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -70,7 +63,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.1.2
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

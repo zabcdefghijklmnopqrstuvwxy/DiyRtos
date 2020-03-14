@@ -12,6 +12,48 @@
 #ifndef _OS_TASK_H_
 #define _OS_TASK_H_
 
+#define   TASK_MAX_NUM			32   /**< OS下支持的最多任务数量 */
+
+
+/**
+* @brief 任务优先级,数值越低优先级越高最多支持32个优先级设置
+*/
+typedef enum
+{
+	 TASKPRI0,    /**< 优先级0 优先级最高*/
+	 TASKPRI1,
+	 TASKPRI2,
+	 TASKPRI3,
+	 TASKPRI4,
+	 TASKPRI5,
+	 TASKPRI6,
+	 TASKPRI7,
+	 TASKPRI8,
+	 TASKPRI9,
+	 TASKPRI10,
+	 TASKPRI11,
+	 TASKPRI12,
+	 TASKPRI13,
+	 TASKPRI14,
+	 TASKPRI15,
+	 TASKPRI16,
+	 TASKPRI17,
+	 TASKPRI18,
+	 TASKPRI19,
+	 TASKPRI20,
+	 TASKPRI21,
+	 TASKPRI22,
+	 TASKPRI23,
+	 TASKPRI24,
+	 TASKPRI25,
+	 TASKPRI26,
+	 TASKPRI27,
+	 TASKPRI28,
+	 TASKPRI29,
+	 TASKPRI30,
+	 TASKPRI31,  /**< 优先级31，优先等级最低 */
+}task_prio_t;
+
 
 /**
 *@brief 任务数据结构
@@ -19,6 +61,7 @@
 typedef struct _tTask{
 		unsigned int *stack;    /**< 独立栈指针 */
 	  unsigned int unDelay;   /**< 任务延时计数 */
+	  unsigned int unPri;     /**< 任务优先级 */
 }tTask,*p_tTask;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */
@@ -27,11 +70,11 @@ extern tTask *idleTask;      /**< 空闲任务全局变量 */
 
 /**
  * @brief 任务初始化函数
- * @param task 任务独立栈，entry待保存的任务，param 任务的参数，stack独立栈指针
+ * @param task 任务独立栈，entry待保存的任务，param 任务的参数，prio 任务优先级，stack独立栈指针
  * @note 用户需要分配一片空间用于任务栈。即传入的stack变量为用户任务栈指针
  * @retval 无
  */
-void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,unsigned int *stack);
+void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,unsigned int *stack);
 
 /**
  * @brief 系统时钟设置
@@ -104,5 +147,13 @@ void OS_TASK_ScheduleEnable(void);
  * @retval 无
  */
 void OS_TASK_ScheduleDisable(void);
+
+/**
+ * @brief 获取最高优先级任务
+ * @param 无
+ * @note 无
+ * @retval 返回最高优先级任务数据信息
+ */
+tTask* OS_TASK_HighestReadyTask(void);
 
 #endif
