@@ -21,6 +21,9 @@
 #include "stm32f4xx_hal.h"
 #endif
 
+#include "OS_COM.h"
+
+
 #define   TASK_MAX_NUM			32   /**< OS下支持的最多任务数量 */
 
 
@@ -29,7 +32,7 @@
 */
 typedef enum
 {
-	 TASKPRI0,    /**< 优先级0 优先级最高*/
+	 TASKPRI0,    /**< 优先级0，优先级最高*/
 	 TASKPRI1,
 	 TASKPRI2,
 	 TASKPRI3,
@@ -63,19 +66,37 @@ typedef enum
 	 TASKPRI31,  /**< 优先级31，优先等级最低 */
 }task_prio_t;
 
+/**
+*@brief 任务状态
+*/
+typedef enum TASKSTATUS{
+		TASK_DELAYSTATUS,    /**< 任务处于延时状态 */
+	  TASK_READYSTATUS     /**< 任务处于就绪状态 */
+}task_status_t;
 
 /**
 *@brief 任务数据结构
 */
 typedef struct _tTask{
-		unsigned int *stack;    /**< 独立栈指针 */
-	  unsigned int unDelay;   /**< 任务延时计数 */
-	  unsigned int unPri;     /**< 任务优先级 */
+		unsigned int *stack;       /**< 独立栈指针 */
+	  unsigned int unDelay;      /**< 任务延时计数 */
+	  node_t tDelaynode;         /**< 延时任务节点 */
+	  unsigned int unPri;        /**< 任务优先级 */
+	  task_status_t tTaskState;  /**< 任务状态 */
 }tTask,*p_tTask;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */
 extern tTask *nextTask;			 /**< 下一个任务全局变量 */
 extern tTask *idleTask;      /**< 空闲任务全局变量 */
+
+
+/**
+ * @brief 任务系统初始化
+ * @param 无
+ * @note 初始化双向链表，设置PendSv优先级，初始化任务时间片默认为10ms
+ * @retval 无
+ */
+void OS_TASK_OSInit(void);
 
 /**
  * @brief 任务初始化函数

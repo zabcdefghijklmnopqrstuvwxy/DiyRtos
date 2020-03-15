@@ -22,8 +22,7 @@
 #endif
 
 /*< 计算数据节点的首地址 */
-#define  NODEPARENT(node,parent,name)  (parent*)((unsigned int)node - (unsigned int)&((parent*)(0)->name))
-
+#define  NODEPARENT(node,parent,name)  (parent*)((unsigned int)node - (unsigned int)&((parent*)0)->name)
 
 /**
 *@brief 位图数据结构

@@ -12,7 +12,6 @@
 
 
 #include "OS_TASK.h"
-#include "OS_COM.h"
 
 #define			NVIC_INT_CTRL			0xE000ED04
 #define			NVIC_PENDSVSET		0x10000000
@@ -22,10 +21,10 @@
 #define			MEM32(addr)				*(volatile unsigned long*)(addr)
 #define			MEM8(addr)				*(volatile unsigned char*)(addr)
 	
-tTask *currentTask;   /**< 当前任务全局变量 */
-tTask *nextTask;			/**< 下一个任务全局变量 */
-tTask *idleTask;
-tBitmap_t tBitmap;    /**< 位图实例化 */
+tTask *currentTask;    /**< 当前任务全局变量 */
+tTask *nextTask;			 /**< 下一个任务全局变量 */
+tBitmap_t tBitmap;     /**< 位图实例化 */
+nodelist_t tNodeList;  /**< 双向链表实例化 */
 
 p_tTask taskTable[TASK_MAX_NUM];
 
@@ -95,11 +94,13 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,
 
 		task->stack = stack;					         //保存任务的独立栈
 		task->unDelay = 0;                     //初始化延时计数
-		task->unPri = prio;
-
+		task->unPri = prio;                    //优先级初始化
+		task->tTaskState = TASK_READYSTATUS;   //设置任务为就绪状态
 		taskTable[prio] = task;
 
-		OS_COM_SetBitmap(&tBitmap,prio);
+		OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
+		
+		OS_COM_AddNode(&tNodeList,&taskTable[prio]->tDelaynode);  //延时任务加入链表中
 }
 
 /**
@@ -166,6 +167,64 @@ void OS_TASK_Sched(void)
 }
 
 /**
+ * @brief 任务唤醒
+ * @param 无
+ * @note 将延时完成的任务从延时任务队列中删除，设置任务为就绪状态
+ * @retval 无
+ */
+void OS_TASK_DelayWakeup(p_tTask ptask)
+{
+	  if(NULL == ptask)
+		{
+				return ;
+		}
+	
+	  ptask->tTaskState = TASK_READYSTATUS;
+		OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
+}
+
+/**
+ * @brief 任务等待
+ * @param[in] ptask 任务数据，unDelay 延时时间
+ * @note 将延时任务加入到延时任务队列中，设置任务为延时状态
+ * @retval 无
+ */
+void OS_TASK_DelayWait(p_tTask ptask,unsigned int unDelay)
+{
+	  if(NULL == ptask)
+		{
+				return ;
+		}
+	  ptask->unDelay = unDelay;
+		ptask->tTaskState = TASK_DELAYSTATUS;
+		OS_COM_AddNode(&tNodeList,&ptask->tDelaynode);
+}
+
+/**
+ * @brief 延时任务就绪处理
+ * @param 无
+ * @note 位图任务优先级设置，任务放入任务表中
+ * @retval 无
+ */
+void OS_TASK_DelayTaskRdy(p_tTask ptask)
+{
+		taskTable[ptask->unPri] = ptask;
+		OS_COM_SetBitmap(&tBitmap,ptask->unPri);
+}
+
+/**
+ * @brief 延时任务清除
+ * @param 无
+ * @note 位图任务优先级清除，从任务表中清零该任务项
+ * @retval 无
+ */
+void OS_TASK_DelayTaskWait(p_tTask ptask)
+{
+		taskTable[ptask->unPri] = (p_tTask)0;
+	  OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
+}
+
+/**
  * @brief 系统时钟中断任务切换
  * @param 无
  * @note 当前任务延时计数进行自减
@@ -175,24 +234,21 @@ void OS_TASK_SystemTickHandler(void)
 {
 		int i = 0;
 	  unsigned int status;
+	  p_node_t pnode = NULL; 
+	  p_tTask ptask = NULL;
 	  status = OS_TASK_EnterCritical();
-	  for(i = 0; i < TASK_MAX_NUM; i++)
+	  
+		for(pnode = tNodeList.head.next; pnode != &tNodeList.head; pnode = pnode->next)
 		{
-			  if(taskTable[i])
+				ptask = NODEPARENT(pnode,tTask,tDelaynode);
+			  
+			  if(--ptask->unDelay)
 				{
-						if(taskTable[i]->unDelay)
-						{
-							  if(taskTable[i]->unDelay > 0)
-								{
-										taskTable[i]->unDelay--;
-								}
-						}
-						else
-						{
-								OS_COM_SetBitmap(&tBitmap,taskTable[i]->unPri);
-						}
+						OS_TASK_DelayWakeup(ptask);
+						OS_TASK_DelayTaskRdy(ptask);				
 				}
 		}
+	
 	  OS_TASK_ExitCritical(status);		
 		OS_TASK_Sched();
 }
@@ -221,9 +277,6 @@ void OS_TASK_SetSysTickPeriod(unsigned int ms)
 	NVIC_SetPriority(SysTick_IRQn,(1 << __NVIC_PRIO_BITS) - 1);
 	SysTick->VAL = 0;                               //递减寄存器值
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;	
-	
-	__set_PSP(0);
-	MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
 }
 
 /**
@@ -248,11 +301,12 @@ void OS_TASK_Delay(unsigned int delay)
 {
 	  unsigned int status = 0;
 	  status = OS_TASK_EnterCritical();
-		currentTask->unDelay = delay;
-	  OS_COM_ClrBitmap(&tBitmap,currentTask->unPri);
+	  OS_TASK_DelayWait(currentTask,delay);
+	  OS_TASK_DelayTaskWait(currentTask);
 		OS_TASK_ExitCritical(status);		
 		OS_TASK_Sched();
 }
+
 
 /**
  * @brief 临界区进入
@@ -324,4 +378,19 @@ void OS_TASK_ScheduleDisable(void)
 		}
 	
 	  OS_TASK_ExitCritical(unStatus);
+}
+
+/**
+ * @brief 任务系统初始化
+ * @param 无
+ * @note 初始化双向链表，设置PendSv优先级，初始化任务时间片默认为10ms
+ * @retval 无
+ */
+void OS_TASK_OSInit(void)
+{
+	   __set_PSP(0);
+	  MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
+	
+		OS_TASK_SetSysTickPeriod(10);   /**< 设置任务时间片，默认为10ms */
+	  OS_COM_InitList(&tNodeList);    /**< 初始化双向链表 */
 }
