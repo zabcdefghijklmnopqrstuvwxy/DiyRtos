@@ -95,3 +95,85 @@ unsigned int OS_COM_GetFirstBit(p_tBitmap_t pbitmap)
 		
 		return unPos;
 }
+
+/**
+ * @brief 双向链表节点初始化
+ * @param[in] phead 头节点
+ * @note 将双向链表计数清零，前驱节点和后驱节点都指向头节点
+ * @retval 返回0表示初始化成功，返回非0表示初始化失败
+ */
+int OS_COM_InitList(p_nodelist_t phead)
+{
+	  if(NULL == phead)
+		{
+				return -1;
+		}			
+	
+		phead->head.pre = &phead->head;
+	  phead->head.next = &phead->head;
+	
+	  phead->unNodeCnt = 0;
+	
+		return 0;
+}
+
+/**
+ * @brief 双向链表节点的添加
+ * @param[in] phead 头节点，pnode 待添加的节点
+ * @note 尾部插入节点
+ * @retval 返回0表示插入成功，返回非0表示插入失败
+ */
+int OS_COM_AddNode(p_nodelist_t phead,p_node_t pnode)
+{
+		if(NULL == phead || NULL == pnode)
+		{
+				return -1;
+	  }
+		
+		pnode->next = &phead->head;
+		pnode->pre = phead->head.pre->next;		
+		phead->head.pre->next = pnode;
+		phead->head.pre = pnode;
+		
+		phead->unNodeCnt++;
+		
+		return 0;
+}
+
+/**
+ * @brief 双向链表节点的删除
+ * @param[in] phead 头节点，pnode 待删除的节点
+ * @note 无
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_COM_DelNode(p_nodelist_t phead,p_node_t pnode)
+{
+		if(NULL == phead || NULL == pnode)
+		{
+				return -1;
+		}		
+		
+	  if(phead->unNodeCnt > 0)
+		{
+				pnode->pre->next = pnode->next;
+				pnode->next->pre = pnode->pre;
+				
+				pnode->pre = pnode;
+				pnode->next = pnode;
+			
+			  phead->unNodeCnt--;	
+		}
+				
+		return 0;
+}
+
+/**
+ * @brief 获取双向链表中个数
+ * @param[in] phead 链表指针
+ * @note 无
+ * @retval 返回链表节点个数 
+ */
+unsigned int OS_COM_GetNodeCount(p_nodelist_t phead)
+{
+		return phead->unNodeCnt;
+}	

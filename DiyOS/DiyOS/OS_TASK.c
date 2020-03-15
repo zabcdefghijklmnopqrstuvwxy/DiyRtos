@@ -10,13 +10,6 @@
 ********************************************************************************
 */
 
-#ifdef USE_STM32F1
-#include "stm32f1xx_hal.h"
-#endif
-
-#ifdef USE_STM32F4
-#include "stm32f4xx_hal.h"
-#endif
 
 #include "OS_TASK.h"
 #include "OS_COM.h"
@@ -228,6 +221,9 @@ void OS_TASK_SetSysTickPeriod(unsigned int ms)
 	NVIC_SetPriority(SysTick_IRQn,(1 << __NVIC_PRIO_BITS) - 1);
 	SysTick->VAL = 0;                               //µÝ¼õ¼Ä´æÆ÷Öµ
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;	
+	
+	__set_PSP(0);
+	MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
 }
 
 /**

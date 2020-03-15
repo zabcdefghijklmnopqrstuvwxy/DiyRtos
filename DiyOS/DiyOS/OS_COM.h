@@ -12,12 +12,41 @@
 #ifndef _OS_COM_H_
 #define _OS_COM_H_
 
+
+#ifdef USE_STM32F1
+#include "stm32f1xx_hal.h"
+#endif
+
+#ifdef USE_STM32F4
+#include "stm32f4xx_hal.h"
+#endif
+
+/*< 计算数据节点的首地址 */
+#define  NODEPARENT(node,parent,name)  (parent*)((unsigned int)node - (unsigned int)&((parent*)(0)->name))
+
+
 /**
 *@brief 位图数据结构
 */
 typedef struct _BITMAP{
 		unsigned int unBitmap;    /**< 位图数据表 */    
 }tBitmap_t,*p_tBitmap_t;
+
+/**
+*@brief 双向链表节点
+*/
+typedef struct _NODE{
+		struct _NODE *pre;     /**< 前驱节点 */
+		struct _NODE *next;    /**< 后驱节点 */
+}node_t,*p_node_t;
+
+/**
+*@brief 双向链表
+*/
+typedef struct _NODELIST{
+		node_t head;      					/**< 链表头 */         
+	  unsigned int unNodeCnt;     /**< 链表计数 */
+}nodelist_t,*p_nodelist_t;
 
 /**
  * @brief 位图初始化
@@ -51,5 +80,36 @@ void OS_COM_ClrBitmap(p_tBitmap_t pbitmap,unsigned int pos);
  */
 unsigned int OS_COM_GetFirstBit(p_tBitmap_t pbitmap);
 
+/**
+ * @brief 双向链表节点初始化
+ * @param[in] phead 头节点
+ * @note 将双向链表计数清零，前驱节点和后驱节点都指向头节点
+ * @retval 返回0表示初始化成功，返回非0表示初始化失败
+ */
+int OS_COM_InitList(p_nodelist_t phead);
+
+/**
+ * @brief 双向链表节点的添加
+ * @param[in] phead 头节点，pnode 待添加的节点
+ * @note 尾部插入节点
+ * @retval 返回0表示插入成功，返回非0表示插入失败
+ */
+int OS_COM_AddNode(p_nodelist_t phead,p_node_t pnode);
+
+/**
+ * @brief 双向链表节点的删除
+ * @param[in] phead 头节点，pnode 待删除的节点
+ * @note 无
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_COM_DelNode(p_nodelist_t phead,p_node_t pnode);
+
+/**
+ * @brief 获取双向链表中个数
+ * @param[in] phead 链表指针
+ * @note 无
+ * @retval 返回链表节点个数 
+ */
+unsigned int OS_COM_GetNodeCount(p_nodelist_t phead);
 
 #endif

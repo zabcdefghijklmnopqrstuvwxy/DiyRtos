@@ -81,7 +81,6 @@ void task1(void *param)
 {
 		static unsigned int unFlag1 = 0;
 	  unsigned int unPri = 0;
-	  OS_TASK_SetSysTickPeriod(10);
 		while(1)
 		{
 				unFlag1 = 1;
@@ -153,7 +152,8 @@ int main(void)
 	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,TASKPRI31,&taskIdleEnv[1024]);
 	
 	nextTask = OS_TASK_HighestReadyTask();
-	OS_TASK_RunFirst();
+	//OS_TASK_RunFirst();
+  OS_TASK_SetSysTickPeriod(10);
 	
   while (1);
 

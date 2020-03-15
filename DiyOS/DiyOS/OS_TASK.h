@@ -12,6 +12,15 @@
 #ifndef _OS_TASK_H_
 #define _OS_TASK_H_
 
+
+#ifdef USE_STM32F1
+#include "stm32f1xx_hal.h"
+#endif
+
+#ifdef USE_STM32F4
+#include "stm32f4xx_hal.h"
+#endif
+
 #define   TASK_MAX_NUM			32   /**< OS下支持的最多任务数量 */
 
 
