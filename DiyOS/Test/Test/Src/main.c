@@ -86,7 +86,7 @@ void task1(void *param)
 				unFlag1 = 1;
 			  OS_TASK_Delay(7);
 				unFlag1 = 0;
-			  OS_TASK_Delay(23);         			  
+		//	  OS_TASK_Delay(23);         			  
 		}
 }
 
@@ -96,9 +96,9 @@ void task2(void *param)
 		while(1)
 		{
 				unFlag2 = 1;
-			  OS_TASK_Delay(17);
+	//		  OS_TASK_Delay(17);
 				unFlag2 = 0;
-			  OS_TASK_Delay(13);
+		//	  OS_TASK_Delay(13);
 		}
 }
 
@@ -139,7 +139,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-	OS_TASK_ScheduleInit();
+	OS_TASK_OSInit();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -149,7 +149,7 @@ int main(void)
 	
 	OS_TASK_Init(&tTask1,task1,(void*)0x11111111,TASKPRI0,&task1Env[1024]);
 	OS_TASK_Init(&tTask2,task2,(void*)0x22222222,TASKPRI1,&task2Env[1024]);
-	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,TASKPRI31,&taskIdleEnv[1024]);
+	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,TASKPRI1,&taskIdleEnv[1024]);
 	
 	nextTask = OS_TASK_HighestReadyTask();
 	//OS_TASK_RunFirst();

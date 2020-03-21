@@ -25,7 +25,7 @@
 
 
 #define   TASK_MAX_NUM			32   /**< OS下支持的最多任务数量 */
-
+#define		TASK_MAX_SLICE		10	 /**< 任务时间片大小 */
 
 /**
 * @brief 任务优先级,数值越低优先级越高最多支持32个优先级设置
@@ -79,16 +79,17 @@ typedef enum TASKSTATUS{
 */
 typedef struct _tTask{
 		unsigned int *stack;       /**< 独立栈指针 */
-	  unsigned int unDelay;      /**< 任务延时计数 */
+	  node_t tLinkNode;					 /**< 同优先级链表 */ 
+	  int nDelay;                /**< 任务延时计数 */
 	  node_t tDelaynode;         /**< 延时任务节点 */
 	  unsigned int unPri;        /**< 任务优先级 */
 	  task_status_t tTaskState;  /**< 任务状态 */
+	  int nSlice;			 /**< 任务时间片 */
 }tTask,*p_tTask;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */
 extern tTask *nextTask;			 /**< 下一个任务全局变量 */
 extern tTask *idleTask;      /**< 空闲任务全局变量 */
-
 
 /**
  * @brief 任务系统初始化

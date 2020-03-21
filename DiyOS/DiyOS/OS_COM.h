@@ -24,6 +24,9 @@
 /*< 计算数据节点的首地址 */
 #define  NODEPARENT(node,parent,name)  (parent*)((unsigned int)node - (unsigned int)&((parent*)0)->name)
 
+/*< 获取第一个节点 */
+#define	 GET_FIRST_NODE(head) 					(head.next)
+
 /**
 *@brief 位图数据结构
 */
@@ -46,6 +49,7 @@ typedef struct _NODELIST{
 		node_t head;      					/**< 链表头 */         
 	  unsigned int unNodeCnt;     /**< 链表计数 */
 }nodelist_t,*p_nodelist_t;
+
 
 /**
  * @brief 位图初始化

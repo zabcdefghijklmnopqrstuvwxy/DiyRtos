@@ -118,7 +118,7 @@ int OS_COM_InitList(p_nodelist_t phead)
 }
 
 /**
- * @brief 双向链表节点的添加
+ * @brief 双向链表节点的头部添加
  * @param[in] phead 头节点，pnode 待添加的节点
  * @note 尾部插入节点
  * @retval 返回0表示插入成功，返回非0表示插入失败

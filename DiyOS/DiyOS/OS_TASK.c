@@ -21,12 +21,11 @@
 #define			MEM32(addr)				*(volatile unsigned long*)(addr)
 #define			MEM8(addr)				*(volatile unsigned char*)(addr)
 	
-tTask *currentTask;    /**< 当前任务全局变量 */
-tTask *nextTask;			 /**< 下一个任务全局变量 */
-tBitmap_t tBitmap;     /**< 位图实例化 */
-nodelist_t tNodeList;  /**< 双向链表实例化 */
-
-p_tTask taskTable[TASK_MAX_NUM];
+tTask *currentTask;   								/**< 当前任务全局变量 */
+tTask *nextTask;										  /**< 下一个任务全局变量 */
+tBitmap_t tBitmap;     								/**< 位图实例化 */
+nodelist_t tNodeList;  								/**< 双向链表实例化 */
+nodelist_t taskTable[TASK_MAX_NUM];   /**< 任务链表实例化 */
 
 /*调度锁*/
 static unsigned int gunSchedule;
@@ -93,14 +92,14 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,
 		*(--stack) = (unsigned long)0x4;		   //保存R4寄存器值
 
 		task->stack = stack;					         //保存任务的独立栈
-		task->unDelay = 0;                     //初始化延时计数
+		task->nDelay = 0;                      //初始化延时计数
 		task->unPri = prio;                    //优先级初始化
 		task->tTaskState = TASK_READYSTATUS;   //设置任务为就绪状态
-		taskTable[prio] = task;
-
+		task->nSlice = TASK_MAX_SLICE;				 //时间片初始化
 		OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
 		
-		OS_COM_AddNode(&tNodeList,&taskTable[prio]->tDelaynode);  //延时任务加入链表中
+		OS_COM_AddNode(&tNodeList,&task->tDelaynode);  //延时任务加入链表中
+	  OS_COM_AddNode(&taskTable[prio],&task->tLinkNode);  //同优先级任务加入链表中
 }
 
 /**
@@ -134,7 +133,9 @@ void OS_TASK_Switch(void)
  */
 tTask* OS_TASK_HighestReadyTask(void)
 {
-		return taskTable[OS_COM_GetFirstBit(&tBitmap)];
+		node_t *pnode = NULL;
+	  pnode = GET_FIRST_NODE(taskTable[OS_COM_GetFirstBit(&tBitmap)].head);
+		return NODEPARENT(pnode,tTask,tLinkNode);
 }
 
 /**
@@ -189,13 +190,13 @@ void OS_TASK_DelayWakeup(p_tTask ptask)
  * @note 将延时任务加入到延时任务队列中，设置任务为延时状态
  * @retval 无
  */
-void OS_TASK_DelayWait(p_tTask ptask,unsigned int unDelay)
+void OS_TASK_DelayWait(p_tTask ptask,int nDelay)
 {
 	  if(NULL == ptask)
 		{
 				return ;
 		}
-	  ptask->unDelay = unDelay;
+	  ptask->nDelay = nDelay;
 		ptask->tTaskState = TASK_DELAYSTATUS;
 		OS_COM_AddNode(&tNodeList,&ptask->tDelaynode);
 }
@@ -208,7 +209,8 @@ void OS_TASK_DelayWait(p_tTask ptask,unsigned int unDelay)
  */
 void OS_TASK_DelayTaskRdy(p_tTask ptask)
 {
-		taskTable[ptask->unPri] = ptask;
+		//taskTable[ptask->unPri] = ptask;
+		OS_COM_AddNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务加入链表中
 		OS_COM_SetBitmap(&tBitmap,ptask->unPri);
 }
 
@@ -220,8 +222,12 @@ void OS_TASK_DelayTaskRdy(p_tTask ptask)
  */
 void OS_TASK_DelayTaskWait(p_tTask ptask)
 {
-		taskTable[ptask->unPri] = (p_tTask)0;
-	  OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
+		OS_COM_AddNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务加入链表中
+	  
+	  if(OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
+		{
+				OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
+		}
 }
 
 /**
@@ -234,21 +240,30 @@ void OS_TASK_SystemTickHandler(void)
 {
 		int i = 0;
 	  unsigned int status;
-	  p_node_t pnode = NULL; 
+	  p_node_t pnode = tNodeList.head.next; 
 	  p_tTask ptask = NULL;
 	  status = OS_TASK_EnterCritical();
 	  
-		for(pnode = tNodeList.head.next; pnode != &tNodeList.head; pnode = pnode->next)
+		while(pnode != &tNodeList.head)
 		{
 				ptask = NODEPARENT(pnode,tTask,tDelaynode);
-			  
-			  if(--ptask->unDelay)
+			  pnode = pnode->next;
+				if(ptask->nDelay > 0)
 				{
-						OS_TASK_DelayWakeup(ptask);
-						OS_TASK_DelayTaskRdy(ptask);				
+						ptask->nDelay--;
+						continue;					
 				}
+				OS_TASK_DelayWakeup(ptask);
+				OS_TASK_DelayTaskRdy(ptask);					
 		}
 	
+		if(0 == --currentTask->nSlice)
+		{
+				currentTask->nSlice = TASK_MAX_SLICE;
+				OS_COM_DelNode(&taskTable[currentTask->unPri],&currentTask->tLinkNode);
+				OS_COM_AddNode(&taskTable[currentTask->unPri],&currentTask->tLinkNode);
+		}
+		
 	  OS_TASK_ExitCritical(status);		
 		OS_TASK_Sched();
 }
@@ -388,9 +403,16 @@ void OS_TASK_ScheduleDisable(void)
  */
 void OS_TASK_OSInit(void)
 {
+	  int i = 0;
 	   __set_PSP(0);
 	  MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
 	
 		OS_TASK_SetSysTickPeriod(10);   /**< 设置任务时间片，默认为10ms */
-	  OS_COM_InitList(&tNodeList);    /**< 初始化双向链表 */
+		OS_TASK_ScheduleInit();
+		OS_COM_InitList(&tNodeList);  //任务链表初始化
+	
+	  for(i = 0; i < TASK_MAX_NUM; i++)
+		{
+				OS_COM_InitList(&taskTable[i]);  //任务链表初始化
+		}
 }
