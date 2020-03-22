@@ -94,11 +94,11 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,
 		task->stack = stack;					         //保存任务的独立栈
 		task->nDelay = 0;                      //初始化延时计数
 		task->unPri = prio;                    //优先级初始化
-		task->tTaskState = TASK_READYSTATUS;   //设置任务为就绪状态
+		task->tTaskState = 0;   							 //设置任务为就绪状态
 		task->nSlice = TASK_MAX_SLICE;				 //时间片初始化
+		task->nSuspendCount = 0;							 //任务挂起次数初始化
 		OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
 		
-		OS_COM_AddNode(&tNodeList,&task->tDelaynode);  //延时任务加入链表中
 	  OS_COM_AddNode(&taskTable[prio],&task->tLinkNode);  //同优先级任务加入链表中
 }
 
@@ -180,7 +180,7 @@ void OS_TASK_DelayWakeup(p_tTask ptask)
 				return ;
 		}
 	
-	  ptask->tTaskState = TASK_READYSTATUS;
+	  ptask->tTaskState = ptask->tTaskState & (~TASK_DELAYSTATUS);
 		OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
 }
 
@@ -197,37 +197,91 @@ void OS_TASK_DelayWait(p_tTask ptask,int nDelay)
 				return ;
 		}
 	  ptask->nDelay = nDelay;
-		ptask->tTaskState = TASK_DELAYSTATUS;
+		ptask->tTaskState = ptask->tTaskState | TASK_DELAYSTATUS;
 		OS_COM_AddNode(&tNodeList,&ptask->tDelaynode);
 }
 
 /**
- * @brief 延时任务就绪处理
+ * @brief 任务就绪处理
  * @param 无
  * @note 位图任务优先级设置，任务放入任务表中
  * @retval 无
  */
-void OS_TASK_DelayTaskRdy(p_tTask ptask)
+void OS_TASK_TaskRdy(p_tTask ptask)
 {
-		//taskTable[ptask->unPri] = ptask;
 		OS_COM_AddNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务加入链表中
 		OS_COM_SetBitmap(&tBitmap,ptask->unPri);
 }
 
 /**
- * @brief 延时任务清除
+ * @brief 任务非就绪处理
  * @param 无
  * @note 位图任务优先级清除，从任务表中清零该任务项
  * @retval 无
  */
-void OS_TASK_DelayTaskWait(p_tTask ptask)
+void OS_TASK_TaskUnRdy(p_tTask ptask)
 {
-		OS_COM_AddNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务加入链表中
+		OS_COM_DelNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务链表中
 	  
-	  if(OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
+	  if(0 == OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
 		{
 				OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
 		}
+}
+
+/**
+ * @brief 任务挂起
+ * @param 无
+ * @note 将任务从任务链表中删除,如果当前任务是需要挂起的任务需要进行
+ * 任务切换处理
+ * @retval 无
+ */
+void OS_TASK_SuspendTask(p_tTask ptask)
+{
+	  unsigned int unStatus = 0;
+	  unStatus = OS_TASK_EnterCritical();
+    
+		if(!(ptask->tTaskState & TASK_SUSPENDSTATUS))
+		{
+			if(0 == ptask->nSuspendCount)
+			{
+					ptask->tTaskState = ptask->tTaskState | TASK_SUSPENDSTATUS;
+					OS_TASK_TaskUnRdy(ptask);
+					ptask->nSuspendCount++;
+				  
+					if(currentTask == ptask)
+					{
+							OS_TASK_ExitCritical(unStatus);		
+							OS_TASK_Sched();
+					}
+			}
+		}
+	  
+		OS_TASK_ExitCritical(unStatus);		
+}
+
+/**
+ * @brief 任务唤醒
+ * @param 无
+ * @note 将任务加入到任务链表中
+ * @retval 无
+ */
+void OS_TASK_WakeUpTask(p_tTask ptask)
+{
+	  unsigned int unStatus = 0;
+	  unStatus = OS_TASK_EnterCritical();
+	 
+	  if(ptask->tTaskState & TASK_SUSPENDSTATUS)
+		{
+			  if(ptask->nSuspendCount > 0)
+				{
+					OS_TASK_TaskRdy(ptask);
+					ptask->nSuspendCount--;
+					ptask->tTaskState = ptask->tTaskState & (~TASK_SUSPENDSTATUS);
+				}
+		}		
+	  
+	  OS_TASK_ExitCritical(unStatus);		
 }
 
 /**
@@ -248,13 +302,19 @@ void OS_TASK_SystemTickHandler(void)
 		{
 				ptask = NODEPARENT(pnode,tTask,tDelaynode);
 			  pnode = pnode->next;
+			
+			  if(ptask->tTaskState & TASK_SUSPENDSTATUS)
+				{
+						continue;
+				}
+			
 				if(ptask->nDelay > 0)
 				{
 						ptask->nDelay--;
 						continue;					
 				}
 				OS_TASK_DelayWakeup(ptask);
-				OS_TASK_DelayTaskRdy(ptask);					
+				OS_TASK_TaskRdy(ptask);					
 		}
 	
 		if(0 == --currentTask->nSlice)
@@ -317,11 +377,10 @@ void OS_TASK_Delay(unsigned int delay)
 	  unsigned int status = 0;
 	  status = OS_TASK_EnterCritical();
 	  OS_TASK_DelayWait(currentTask,delay);
-	  OS_TASK_DelayTaskWait(currentTask);
+	  OS_TASK_TaskUnRdy(currentTask);
 		OS_TASK_ExitCritical(status);		
 		OS_TASK_Sched();
 }
-
 
 /**
  * @brief 临界区进入

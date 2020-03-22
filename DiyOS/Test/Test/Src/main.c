@@ -93,7 +93,8 @@ void task1(void *param)
 void task2(void *param)
 {
 		static unsigned int unFlag2 = 0;
-		while(1)
+		OS_TASK_SuspendTask(&tTask1);
+  	while(1)
 		{
 				unFlag2 = 1;
 	//		  OS_TASK_Delay(17);
@@ -152,7 +153,6 @@ int main(void)
 	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,TASKPRI1,&taskIdleEnv[1024]);
 	
 	nextTask = OS_TASK_HighestReadyTask();
-	//OS_TASK_RunFirst();
   OS_TASK_SetSysTickPeriod(10);
 	
   while (1);

@@ -69,10 +69,8 @@ typedef enum
 /**
 *@brief 任务状态
 */
-typedef enum TASKSTATUS{
-		TASK_DELAYSTATUS,    /**< 任务处于延时状态 */
-	  TASK_READYSTATUS     /**< 任务处于就绪状态 */
-}task_status_t;
+#define		  TASK_DELAYSTATUS        1     /**< 任务延时状态 */
+#define			TASK_SUSPENDSTATUS			2			/**< 任务挂起状态 */
 
 /**
 *@brief 任务数据结构
@@ -83,8 +81,9 @@ typedef struct _tTask{
 	  int nDelay;                /**< 任务延时计数 */
 	  node_t tDelaynode;         /**< 延时任务节点 */
 	  unsigned int unPri;        /**< 任务优先级 */
-	  task_status_t tTaskState;  /**< 任务状态 */
-	  int nSlice;			 /**< 任务时间片 */
+	  unsigned int tTaskState;   /**< 任务状态 */
+	  int nSlice;			 					 /**< 任务时间片 */
+	  int nSuspendCount;				 /**< 任务挂起次数 */
 }tTask,*p_tTask;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */
@@ -186,5 +185,21 @@ void OS_TASK_ScheduleDisable(void);
  * @retval 返回最高优先级任务数据信息
  */
 tTask* OS_TASK_HighestReadyTask(void);
+
+/**
+ * @brief 任务挂起
+ * @param 无
+ * @note 将任务从任务链表中删除
+ * @retval 无
+ */
+void OS_TASK_SuspendTask(p_tTask ptask);
+
+/**
+ * @brief 任务唤醒
+ * @param 无
+ * @note 将任务加入到任务链表中
+ * @retval 无
+ */
+void OS_TASK_WakeUpTask(p_tTask ptask);
 
 #endif
