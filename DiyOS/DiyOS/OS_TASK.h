@@ -71,6 +71,10 @@ typedef enum
 */
 #define		  TASK_DELAYSTATUS        1     /**< 任务延时状态 */
 #define			TASK_SUSPENDSTATUS			2			/**< 任务挂起状态 */
+#define			TASK_DESTROYSTATUS			4			/**< 任务销毁状态 */
+
+/*< 任务清理函数 */
+typedef   int (*clearfn)(void *param);
 
 /**
 *@brief 任务数据结构
@@ -84,6 +88,9 @@ typedef struct _tTask{
 	  unsigned int tTaskState;   /**< 任务状态 */
 	  int nSlice;			 					 /**< 任务时间片 */
 	  int nSuspendCount;				 /**< 任务挂起次数 */
+	  clearfn clearcb;					 /**< 清理函数 */
+	  void *clearparam;          /**< 清理函数参数 */
+	  int nDeleteFlag;           /**< 删除标志 */
 }tTask,*p_tTask;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */
@@ -201,5 +208,45 @@ void OS_TASK_SuspendTask(p_tTask ptask);
  * @retval 无
  */
 void OS_TASK_WakeUpTask(p_tTask ptask);
+
+/**
+ * @brief 任务的删除请求
+ * @param[in] 待删除的任务句柄
+ * @note 将任务句柄中的删除标志置一即可
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_TASK_DeleteReq(p_tTask ptask);
+
+/**
+ * @brief 任务删除标志查询
+ * @param[in] 待查询的任务句柄
+ * @note None
+ * @retval 如果需要删除则返回1，否则返回0
+ */
+int OS_TASK_IsDelete(p_tTask ptask);
+
+/**
+ * @brief 自身任务删除
+ * @param None
+ * @note None
+ * @retval None
+ */
+void OS_TASK_SelfDelete(void);
+
+/**
+ * @brief 任务的强制删除
+ * @param[in] 待删除的任务句柄
+ * @note 将延迟队列
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_TASK_ForceDelete(p_tTask ptask);
+
+/**
+ * @brief 任务清理函数的注册
+ * @param[in] ptask 待删除的任务句柄，fn待清除的回调函数，param回调函数参数
+ * @note None
+ * @retval None
+ */
+void OS_TASK_RegisterCLearFn(p_tTask ptask,clearfn fn,void* param);
 
 #endif

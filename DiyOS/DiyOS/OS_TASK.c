@@ -97,6 +97,10 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,
 		task->tTaskState = 0;   							 //设置任务为就绪状态
 		task->nSlice = TASK_MAX_SLICE;				 //时间片初始化
 		task->nSuspendCount = 0;							 //任务挂起次数初始化
+		task->clearcb = NULL;                  //清理函数初始化为空
+		task->clearparam = NULL;							 //清理函数参数初始化为空
+	  task->nDeleteFlag = 0;	               //删除标志清零 
+		
 		OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
 		
 	  OS_COM_AddNode(&taskTable[prio],&task->tLinkNode);  //同优先级任务加入链表中
@@ -453,6 +457,166 @@ void OS_TASK_ScheduleDisable(void)
 	
 	  OS_TASK_ExitCritical(unStatus);
 }
+
+/**
+ * @brief 任务的删除请求
+ * @param[in] 待删除的任务句柄
+ * @note 将任务句柄中的删除标志置一即可
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_TASK_DeleteReq(p_tTask ptask)
+{
+		unsigned int unStatus = 0;
+	
+	  if(NULL == ptask)
+		{
+				return -1;
+		}
+	
+		unStatus = OS_TASK_EnterCritical();	 
+	  ptask->nDeleteFlag = 1;
+	 	OS_TASK_ExitCritical(unStatus);
+		
+		return 0;
+}
+
+/**
+ * @brief 任务删除标志查询
+ * @param[in] 待查询的任务句柄
+ * @note None
+ * @retval 如果需要删除则返回1，否则返回0
+ */
+int OS_TASK_IsDelete(p_tTask ptask)
+{
+		if(NULL == ptask)
+		{
+				return -1;
+		}
+		
+		return ptask->nDeleteFlag;
+}
+
+
+/**
+ * @brief 任务的删除
+ * @param[in] 待删除的任务句柄
+ * @note 将任务从任务链表中移除
+ * @retval 返回0表示移除成功，返回非0表示移除失败
+ */
+int OS_TASK_ScheduleRemove(p_tTask ptask)
+{
+		unsigned int unStatus = 0;
+
+		if(NULL == ptask)
+		{
+				return -1;
+		}
+		
+		unStatus = OS_TASK_EnterCritical();	 
+		
+		OS_COM_DelNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务链表中
+	  
+	  if(0 == OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
+		{
+				OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
+		}
+		
+	  OS_TASK_ExitCritical(unStatus);
+		
+		return 0;
+}
+
+/**
+ * @brief 延迟任务删除
+ * @param[in] 待删除的延迟任务句柄
+ * @note 将延迟队列从延迟队列中移除
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_TASK_DelayRemove(p_tTask ptask)
+{
+	  unsigned int unStatus = 0;
+
+		if(NULL == ptask)
+		{
+				return -1;
+		}
+	
+	  unStatus = OS_TASK_EnterCritical();	 
+		
+	  ptask->tTaskState = ptask->tTaskState & (~TASK_DELAYSTATUS);
+		OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
+		
+    OS_TASK_ExitCritical(unStatus);
+		
+		return 0;
+}
+
+/**
+ * @brief 任务清理函数的注册
+ * @param[in] ptask 待删除的任务句柄，fn待清除的回调函数，param回调函数参数
+ * @note None
+ * @retval None
+ */
+void OS_TASK_RegisterCLearFn(p_tTask ptask,clearfn fn,void* param)
+{
+		unsigned int unStatus = 0;
+	  unStatus = OS_TASK_EnterCritical();	 
+
+		ptask->clearcb = fn;
+	  ptask->clearparam = param;
+	
+	  OS_TASK_ExitCritical(unStatus);
+}
+
+
+/**
+ * @brief 任务的强制删除
+ * @param[in] 待删除的任务句柄
+ * @note 将延迟队列
+ * @retval 返回0表示删除成功，返回非0表示删除失败
+ */
+int OS_TASK_ForceDelete(p_tTask ptask)
+{
+		if(NULL == ptask)
+		{
+				return -1;
+		}
+		
+		OS_TASK_ScheduleRemove(ptask);
+		
+		OS_TASK_DelayRemove(ptask);
+		
+		if(ptask->clearcb)
+		{
+				ptask->clearcb(ptask->clearparam);
+		}
+		
+		if(currentTask == ptask)   //当前任务和删除任务一致时调用任务调度函数
+		{
+				OS_TASK_Sched();
+		}
+		
+		return 0;
+}
+
+/**
+ * @brief 自身任务删除
+ * @param None
+ * @note None
+ * @retval None
+ */
+void OS_TASK_SelfDelete(void)
+{
+		OS_TASK_ScheduleRemove(currentTask);
+	  
+		if(currentTask->clearcb)   //如果有清理函数进行清理处理
+		{
+				currentTask->clearcb(currentTask->clearparam);
+		}
+
+	  OS_TASK_Sched();	  //当前任务删除后，调用任务调度函数	
+}
+
 
 /**
  * @brief 任务系统初始化
