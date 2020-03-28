@@ -22,6 +22,7 @@
 #endif
 
 #include "OS_COM.h"
+#include "OS_EVENT.h"
 
 
 #define   TASK_MAX_NUM			32   /**< OS下支持的最多任务数量 */
@@ -91,6 +92,9 @@ typedef struct _tTask{
 	  clearfn clearcb;					 /**< 清理函数 */
 	  void *clearparam;          /**< 清理函数参数 */
 	  int nDeleteFlag;           /**< 删除标志 */
+	  p_event_block_t	pevent;		 /**< 事件块管理*/
+		void *eventmsg;						 /**< 事件块信息 */
+	  unsigned int unEventResult;/**< 事件结果 */
 }tTask,*p_tTask;
 
 /**

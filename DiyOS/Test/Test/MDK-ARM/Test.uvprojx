@@ -512,6 +512,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\DiyOS\OS_COM.c</FilePath>
             </File>
+            <File>
+              <FileName>OS_EVENT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\DiyOS\OS_EVENT.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

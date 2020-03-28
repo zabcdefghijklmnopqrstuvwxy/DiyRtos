@@ -100,10 +100,13 @@ void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,
 		task->clearcb = NULL;                  //清理函数初始化为空
 		task->clearparam = NULL;							 //清理函数参数初始化为空
 	  task->nDeleteFlag = 0;	               //删除标志清零 
+		task->unEventResult = EVENT_OK;				 //事件结果初始化为OK状态
 		
 		OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
 		
 	  OS_COM_AddNode(&taskTable[prio],&task->tLinkNode);  //同优先级任务加入链表中
+		
+		OS_EVENT_Init(task->pevent,EVENT_UNKNOWN);       //事件块初始化
 }
 
 /**
@@ -640,7 +643,9 @@ int OS_TASK_GetTaskInfo(p_tTask ptask,p_task_info_t pinfo)
 		pinfo->nSlice = ptask->nSlice;
 		pinfo->unPri = ptask->unPri;
 		pinfo->unTaskState = ptask->tTaskState;
-		OS_TASK_ExitCritical(unStatus);		
+		OS_TASK_ExitCritical(unStatus);
+
+		return 0;
 }
 
 /**

@@ -24,3 +24,4 @@ test\os_task.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 test\os_task.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 test\os_task.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 test\os_task.o: ..\..\..\DiyOS\OS_COM.h
+test\os_task.o: ..\..\..\DiyOS\OS_EVENT.h
