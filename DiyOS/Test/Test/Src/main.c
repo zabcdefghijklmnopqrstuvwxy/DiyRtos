@@ -93,7 +93,6 @@ void task1(void *param)
 void task2(void *param)
 {
 		static unsigned int unFlag2 = 0;
-		OS_TASK_SuspendTask(&tTask1);
   	while(1)
 		{
 				unFlag2 = 1;

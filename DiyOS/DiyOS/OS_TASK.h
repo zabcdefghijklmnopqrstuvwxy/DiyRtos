@@ -93,6 +93,18 @@ typedef struct _tTask{
 	  int nDeleteFlag;           /**< 删除标志 */
 }tTask,*p_tTask;
 
+/**
+*@brief 任务信息数据结构
+*/
+typedef struct _TASK_INFO{
+		int nDelayTick;									/**< 任务延时tick计数 */
+		unsigned int unPri;							/**< 任务优先级 */
+		unsigned int unTaskState;				/**< 任务当前状态码 */
+	  int nSlice;											/**< 任务时间片 */
+}task_info_t,*p_task_info_t;
+
+
+
 extern tTask *currentTask;   /**< 当前任务全局变量 */
 extern tTask *nextTask;			 /**< 下一个任务全局变量 */
 extern tTask *idleTask;      /**< 空闲任务全局变量 */

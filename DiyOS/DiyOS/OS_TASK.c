@@ -332,7 +332,6 @@ void OS_TASK_SystemTickHandler(void)
 		OS_TASK_Sched();
 }
 
-
 /**
 * @brief 系统时钟中断函数
 * @param 无
@@ -586,6 +585,8 @@ int OS_TASK_ForceDelete(p_tTask ptask)
 		
 		OS_TASK_DelayRemove(ptask);
 		
+		ptask->tTaskState = ptask->tTaskState | TASK_DESTROYSTATUS;
+
 		if(ptask->clearcb)
 		{
 				ptask->clearcb(ptask->clearparam);
@@ -614,9 +615,33 @@ void OS_TASK_SelfDelete(void)
 				currentTask->clearcb(currentTask->clearparam);
 		}
 
+		currentTask->tTaskState = currentTask->tTaskState | TASK_DESTROYSTATUS;
+
 	  OS_TASK_Sched();	  //当前任务删除后，调用任务调度函数	
 }
 
+/**
+ * @brief 任务状态的查询
+ * @param[in] ptask 任务句柄，pinfo 任务状态信息指针
+ * @note None
+ * @retval 返回-1表示参数非法，返回0表示正常
+ */
+int OS_TASK_GetTaskInfo(p_tTask ptask,p_task_info_t pinfo)
+{
+		unsigned int unStatus = 0;
+		if(NULL == ptask || NULL == pinfo)
+		{
+				return -1;
+		}
+
+	  unStatus = OS_TASK_EnterCritical();	 
+		
+		pinfo->nDelayTick = ptask->nDelay;
+		pinfo->nSlice = ptask->nSlice;
+		pinfo->unPri = ptask->unPri;
+		pinfo->unTaskState = ptask->tTaskState;
+		OS_TASK_ExitCritical(unStatus);		
+}
 
 /**
  * @brief 任务系统初始化
