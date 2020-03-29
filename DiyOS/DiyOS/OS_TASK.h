@@ -22,8 +22,6 @@
 #endif
 
 #include "OS_COM.h"
-#include "OS_EVENT.h"
-
 
 #define   TASK_MAX_NUM			32   /**< OS下支持的最多任务数量 */
 #define		TASK_MAX_SLICE		10	 /**< 任务时间片大小 */
@@ -70,12 +68,16 @@ typedef enum
 /**
 *@brief 任务状态
 */
-#define		  TASK_DELAYSTATUS        1     /**< 任务延时状态 */
-#define			TASK_SUSPENDSTATUS			2			/**< 任务挂起状态 */
-#define			TASK_DESTROYSTATUS			4			/**< 任务销毁状态 */
+#define		  TASK_DELAYSTATUS        1     			/**< 任务延时状态 */
+#define			TASK_SUSPENDSTATUS			2						/**< 任务挂起状态 */
+#define			TASK_DESTROYSTATUS			4						/**< 任务销毁状态 */
+#define			TASK_WAITEVENT					0x10000     /**< 任务事件等待 */
+
 
 /*< 任务清理函数 */
 typedef   int (*clearfn)(void *param);
+
+struct _EVENT_BLOCK;
 
 /**
 *@brief 任务数据结构
@@ -92,7 +94,7 @@ typedef struct _tTask{
 	  clearfn clearcb;					 /**< 清理函数 */
 	  void *clearparam;          /**< 清理函数参数 */
 	  int nDeleteFlag;           /**< 删除标志 */
-	  p_event_block_t	pevent;		 /**< 事件块管理*/
+	  struct _EVENT_BLOCK	*pevent;		 /**< 事件块管理*/
 		void *eventmsg;						 /**< 事件块信息 */
 	  unsigned int unEventResult;/**< 事件结果 */
 }tTask,*p_tTask;
@@ -264,5 +266,37 @@ int OS_TASK_ForceDelete(p_tTask ptask);
  * @retval None
  */
 void OS_TASK_RegisterCLearFn(p_tTask ptask,clearfn fn,void* param);
+
+/**
+ * @brief 任务就绪处理
+ * @param 无
+ * @note 位图任务优先级设置，任务放入任务表中
+ * @retval 无
+ */
+void OS_TASK_TaskRdy(p_tTask ptask);
+
+/**
+ * @brief 任务非就绪处理
+ * @param 无
+ * @note 位图任务优先级清除，从任务表中清零该任务项
+ * @retval 无
+ */
+void OS_TASK_TaskUnRdy(p_tTask ptask);
+
+/**
+ * @brief 任务等待
+ * @param[in] ptask 任务数据，unDelay 延时时间
+ * @note 将延时任务加入到延时任务队列中，设置任务为延时状态
+ * @retval 无
+ */
+void OS_TASK_DelayWait(p_tTask ptask,int nDelay);
+
+/**
+ * @brief 任务唤醒
+ * @param 无
+ * @note 将延时完成的任务从延时任务队列中删除，设置任务为就绪状态
+ * @retval 无
+ */
+void OS_TASK_DelayWakeup(p_tTask ptask);
 
 #endif

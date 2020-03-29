@@ -14,6 +14,7 @@
 #define		_OS_EVENT_H_
 
 #include "OS_COM.h"
+#include "OS_TASK.h"
 
 /**
 *@brief 事件结果
@@ -44,5 +45,29 @@ typedef struct _EVENT_BLOCK{
  * @retval 返回错误码
  */
 int OS_EVENT_Init(p_event_block_t pevent,event_type_t type);
+
+/**
+ * @brief 事件控制块等待
+ * @param[in] pevent 事件块列表，ptask 任务句柄，msg消息，state 状态，timeout延时
+ * @note 
+ * @retval 返回错误码
+ */
+int OS_EVENT_Wait(p_event_block_t pevent,p_tTask ptask,void *msg, unsigned int state,unsigned int timeout);
+
+/**
+ * @brief 事件块唤醒
+ * @param[in] pevent 事件块列表，msg事件块消息，result事件控制块等待结果
+ * @note 
+ * @retval 返回错误码
+ */
+int OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result);
+
+/**
+ * @brief 事件控制块移除
+ * @param[in] ptask 任务句柄，msg事件块类型，result事件消息
+ * @note 
+ * @retval 返回错误码
+ */
+int OS_EVENT_Delete(p_tTask ptask,void *msg,unsigned int result);
 
 #endif

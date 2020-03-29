@@ -108,6 +108,14 @@ int OS_COM_AddNode(p_nodelist_t phead,p_node_t pnode);
 int OS_COM_DelNode(p_nodelist_t phead,p_node_t pnode);
 
 /**
+ * @brief 移除双向链表节点的第一个节点
+ * @param[in] phead 头节点
+ * @note 无
+ * @retval 返回删除后的第一个节点
+ */
+p_node_t OS_COM_RemoveFirstNode(p_nodelist_t phead);
+
+/**
  * @brief 获取双向链表中个数
  * @param[in] phead 链表指针
  * @note 无

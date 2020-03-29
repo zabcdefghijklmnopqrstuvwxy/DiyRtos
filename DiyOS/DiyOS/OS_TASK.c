@@ -10,8 +10,8 @@
 ********************************************************************************
 */
 
-
 #include "OS_TASK.h"
+#include "OS_EVENT.h"
 
 #define			NVIC_INT_CTRL			0xE000ED04
 #define			NVIC_PENDSVSET		0x10000000
