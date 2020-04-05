@@ -27,19 +27,18 @@ Project File Date:  03/28/2020
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\software\Keil\ARM\ARMCC\Bin'
 Build target 'Test'
-compiling main.c...
-../Src/main.c(82): warning:  #550-D: variable "unFlag1"  was set but never used
-  		static unsigned int unFlag1 = 0;
-../Src/main.c(83): warning:  #177-D: variable "unPri"  was declared but never referenced
-  	  unsigned int unPri = 0;
-../Src/main.c(95): warning:  #550-D: variable "unFlag2"  was set but never used
-  		static unsigned int unFlag2 = 0;
-../Src/main.c: 3 warnings, 0 errors
 compiling OS_EVENT.c...
+..\..\..\DiyOS\OS_EVENT.c(177): warning:  #1-D: last line of file ends without a newline
+  }
+..\..\..\DiyOS\OS_EVENT.c: 1 warning, 0 errors
+compiling OS_TASK.c...
+..\..\..\DiyOS\OS_TASK.c(302): warning:  #177-D: variable "i"  was declared but never referenced
+  		int i = 0;
+..\..\..\DiyOS\OS_TASK.c: 1 warning, 0 errors
 linking...
 Program Size: Code=4100 RO-data=360 RW-data=304 ZI-data=13904  
 FromELF: creating hex file...
-"Test\Test.axf" - 0 Error(s), 3 Warning(s).
+"Test\Test.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -62,7 +61,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.1.2
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

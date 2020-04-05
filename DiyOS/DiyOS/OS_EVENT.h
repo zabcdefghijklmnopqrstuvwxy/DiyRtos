@@ -70,4 +70,21 @@ int OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result);
  */
 int OS_EVENT_Delete(p_tTask ptask,void *msg,unsigned int result);
 
+/**
+ * @brief 清空所有事件控制块
+ * @param[in] pevent 事件控制块数据指针，msg事件块类型，result事件消息
+ * @note None
+ * @retval 返回清空时还剩下多少等待控制块数量
+ */
+uint32_t OS_EVENT_ClearAll(p_event_block_t pevent,void *msg,unsigned int result);
+
+/**
+ * @brief 获取事件控制块数量
+ * @param[in] pevent 事件控制块数据指针
+ * @note None
+ * @retval 返回清空时还剩下多少等待控制块数量
+ */
+uint32_t OS_EVENT_GetEventCount(p_event_block_t pevent);
+
+
 #endif
