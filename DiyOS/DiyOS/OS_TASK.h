@@ -109,8 +109,6 @@ typedef struct _TASK_INFO{
 	  int nSlice;											/**< 任务时间片 */
 }task_info_t,*p_task_info_t;
 
-
-
 extern tTask *currentTask;   /**< 当前任务全局变量 */
 extern tTask *nextTask;			 /**< 下一个任务全局变量 */
 extern tTask *idleTask;      /**< 空闲任务全局变量 */
