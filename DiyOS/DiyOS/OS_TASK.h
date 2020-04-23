@@ -146,7 +146,7 @@ void OS_TASK_SetSysTickPeriod(unsigned int ms);
 void OS_TASK_RunFirst(void);
 
 /**
- * @brief 运行第一个多任务
+ * @brief 任务调度处理
  * @param 无
  * @note 无
  * @retval 无

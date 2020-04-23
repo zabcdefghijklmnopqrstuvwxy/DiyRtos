@@ -61,7 +61,7 @@ int OS_EVENT_Wait(p_event_block_t pevent,p_tTask ptask,void *msg, unsigned int s
  * @note 
  * @retval ·µ»Ø´íÎóÂë
  */
-int OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result);
+p_tTask OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result);
 
 /**
  * @brief ÊÂ¼ş¿ØÖÆ¿éÒÆ³ı

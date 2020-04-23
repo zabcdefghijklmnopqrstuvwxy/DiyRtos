@@ -62,7 +62,7 @@ int OS_EVENT_Wait(p_event_block_t pevent,p_tTask ptask,void *msg, unsigned int s
  * @note 
  * @retval ·µ»Ø´íÎóÂë
  */
-int OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result)
+p_tTask OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result)
 {
 		unsigned int status;	
 	  status = OS_TASK_EnterCritical();
@@ -87,7 +87,7 @@ int OS_EVENT_Wake(p_event_block_t pevent,void *msg,unsigned int result)
 	
 		OS_TASK_ExitCritical(status);	
 
-	  return 0;
+	  return ptask;
 }
 
 /**
