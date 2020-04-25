@@ -120,3 +120,46 @@ void OS_SEM_Notify(p_sem_t psem)
 		
 	  OS_TASK_ExitCritical(unStatus);
 }
+
+/**
+ * @brief 信号量销毁操作
+ * @param psem 信号量指针
+ * @note 将信号量的队列全部删除掉并将信号量的计数值清零
+ * @retval 返回信号量销毁时还剩多少信号量对应的任务
+ */
+unsigned int OS_SEM_Destroy(p_sem_t psem)
+{
+		unsigned int unStatus;
+	  unsigned int unCnt = 0;
+		unStatus = OS_TASK_EnterCritical();
+	
+		unCnt = OS_EVENT_ClearAll(&psem->tEvent, NULL, ERR_OK);
+		OS_TASK_ExitCritical(unStatus);
+
+	  if(unCnt > 0)
+		{
+				OS_TASK_Sched();
+		}
+		
+		psem->unCount = 0;
+		
+		return unCnt;
+}
+
+/**
+ * @brief 信号量状态信息获取
+ * @param psem 信号量指针，pinfo 信号量状态信息
+ * @note 将信号量相关信息进行拷贝操作
+ * @retval 无
+ */
+void OS_SEM_GetInfo(p_sem_t psem, p_sem_info_t pinfo)
+{
+		unsigned int unStatus;
+		unStatus = OS_TASK_EnterCritical();
+
+	  pinfo->unCount = psem->unCount;
+	  pinfo->unMaxCount = psem->unMaxCount;
+	  pinfo->unTaskCount = OS_EVENT_GetEventCount(&psem->tEvent);
+
+		OS_TASK_ExitCritical(unStatus);
+}

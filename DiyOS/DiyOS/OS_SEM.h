@@ -15,8 +15,6 @@
 #include "os_type.h"
 #include "os_event.h"
 
-
-
 /**
 *@brief 信号量数据结构
 */
@@ -27,6 +25,15 @@ typedef struct _SEM_T
 		unsigned int unMaxCount;    /**< 信号计数最大值  */
 }sem_t,*p_sem_t;
 
+/**
+*@brief 信号量信息结构
+*/
+typedef struct _SEM_INFO
+{
+		unsigned int unCount;            /**< 信号量计数值 */
+	  unsigned int unMaxCount;			   /**< 信号量最大计数值 */
+	  unsigned int unTaskCount;				 /**< 信号量的任务数 */
+}sem_info_t,*p_sem_info_t;
 
 /**
  * @brief 信号量初始化
@@ -61,5 +68,21 @@ int OS_SEM_NoWait(p_sem_t psem);
  * @retval 无
  */
 void OS_SEM_Notify(p_sem_t psem);
+
+/**
+ * @brief 信号量销毁操作
+ * @param psem 信号量指针
+ * @note 将信号量的队列全部删除掉并将信号量的计数值清零
+ * @retval 返回信号量销毁时还剩多少信号量对应的任务
+ */
+unsigned int OS_SEM_Destroy(p_sem_t psem);
+
+/**
+ * @brief 信号量状态信息获取
+ * @param psem 信号量指针，pinfo 信号量状态信息
+ * @note 将信号量相关信息进行拷贝操作
+ * @retval 无
+ */
+void OS_SEM_GetInfo(p_sem_t psem, p_sem_info_t pinfo);
 
 #endif
