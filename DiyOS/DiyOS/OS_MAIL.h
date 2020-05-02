@@ -34,6 +34,16 @@ typedef struct _MAIL_MSG
 }mail_msg_t, *p_mail_msg_t;
 
 /**
+*@brief 邮箱信息
+*/
+typedef struct _MAIL_INFO
+{
+	unsigned int unMailMsgCnt;     /**< 邮箱缓存信息个数 */
+	unsigned int unWaitTaskCnt;	   /**< 邮箱等待任务队列个数 */
+}mail_info_t,*p_mail_info_t;
+
+
+/**
  * @brief 邮箱初始化
  * @param pmbox 邮箱信息指针，pbuf 邮箱缓存指针，unMaxLen 邮箱缓存最大长度
  * @note 

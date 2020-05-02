@@ -183,3 +183,21 @@ int OS_MAIL_Destory(p_mail_msg_t pmbox)
 	
 	return ERR_OK;
 }
+
+/**
+ * @brief 邮箱信息获取
+ * @param pinfo 邮箱信息指针
+ * @note 无
+ * @retval 无
+ */
+int OS_MAIL_GetInfo(p_mail_msg_t pmbox, p_mail_info_t pinfo)
+{
+	unsigned int status;
+	status = OS_TASK_EnterCritical();
+	
+	pinfo->unMailMsgCnt = pmbox->unMsgCnt;
+	pinfo->unWaitTaskCnt = OS_EVENT_GetEventCount(&pmbox->tEvent);
+		
+	OS_TASK_ExitCritical(status);	
+}
+
