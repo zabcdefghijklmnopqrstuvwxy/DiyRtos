@@ -517,6 +517,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\DiyOS\OS_EVENT.c</FilePath>
             </File>
+            <File>
+              <FileName>OS_MAIL.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\DiyOS\OS_MAIL.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

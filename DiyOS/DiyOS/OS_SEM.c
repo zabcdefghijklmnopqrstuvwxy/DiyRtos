@@ -20,18 +20,18 @@
  */
 void OS_SEM_Init(p_sem_t psem, unsigned int unStartCnt, unsigned int unMaxCnt)
 {
-		OS_EVENT_Init(&psem->tEvent, EVENT_SEM);
-	
-	  psem->unMaxCount = unMaxCnt;
-	
-	  if(0 == unMaxCnt)
-		{
-				psem->unCount = unStartCnt;
-		}
-		else
-		{
-			  psem->unCount = unStartCnt > psem->unMaxCount ? psem->unMaxCount : unStartCnt;
-		}
+	OS_EVENT_Init(&psem->tEvent, EVENT_SEM);
+
+	psem->unMaxCount = unMaxCnt;
+
+	if(0 == unMaxCnt)
+	{
+		psem->unCount = unStartCnt;
+	}
+	else
+	{
+		psem->unCount = unStartCnt > psem->unMaxCount ? psem->unMaxCount : unStartCnt;
+	}
 }
 
 /**
@@ -43,21 +43,21 @@ void OS_SEM_Init(p_sem_t psem, unsigned int unStartCnt, unsigned int unMaxCnt)
  */
 int OS_SEM_Wait(p_sem_t psem, unsigned int unWaitTick)
 {
-	  unsigned int unStatus;
-		unStatus = OS_TASK_EnterCritical();
-	
-	  if(psem->unCount > 0)
-		{
-			  psem->unCount--;
-			  OS_TASK_ExitCritical(unStatus);
-				return ERR_OK;
-		}
+	unsigned int unStatus;
+	unStatus = OS_TASK_EnterCritical();
 
-		OS_EVENT_Wait(&psem->tEvent,currentTask,NULL,EVENT_SEM,unWaitTick);
-		OS_TASK_ExitCritical(unStatus);
-		OS_TASK_Sched();
-	
-		return currentTask->unEventResult;
+	if(psem->unCount > 0)
+	{
+		  psem->unCount--;
+		  OS_TASK_ExitCritical(unStatus);
+			return ERR_OK;
+	}
+
+	OS_EVENT_Wait(&psem->tEvent,currentTask,NULL,EVENT_SEM,unWaitTick);
+	OS_TASK_ExitCritical(unStatus);
+	OS_TASK_Sched();
+
+	return currentTask->unEventResult;
 }
 
 /**
@@ -69,19 +69,19 @@ int OS_SEM_Wait(p_sem_t psem, unsigned int unWaitTick)
  */
 int OS_SEM_NoWait(p_sem_t psem)
 {
-		unsigned int unStatus;
-		unStatus = OS_TASK_EnterCritical();
-	
-	  if(psem->unCount > 0)
-		{
-			  psem->unCount--;
-			  OS_TASK_ExitCritical(unStatus);
-			
-		   	return ERR_OK;
-		}
-		
-	  OS_TASK_ExitCritical(unStatus);
-	  return ERR_RESOURCE_UNAVLIABLE;
+	unsigned int unStatus;
+	unStatus = OS_TASK_EnterCritical();
+
+	if(psem->unCount > 0)
+	{
+		psem->unCount--;
+		OS_TASK_ExitCritical(unStatus);
+
+		return ERR_OK;
+	}
+
+	OS_TASK_ExitCritical(unStatus);
+	return ERR_RESOURCE_UNAVLIABLE;
 }
 
 /**
@@ -92,33 +92,33 @@ int OS_SEM_NoWait(p_sem_t psem)
  */
 void OS_SEM_Notify(p_sem_t psem)
 {
-		unsigned int unStatus;
-		unStatus = OS_TASK_EnterCritical();
-	  p_tTask ptask = NULL;
-	
-	  if(OS_EVENT_GetEventCount(&psem->tEvent))
+	unsigned int unStatus;
+	unStatus = OS_TASK_EnterCritical();
+	p_tTask ptask = NULL;
+
+	if(OS_EVENT_GetEventCount(&psem->tEvent))
+	{
+		ptask = OS_EVENT_Wake(&psem->tEvent,NULL,ERR_OK);
+
+		if(ptask->unPri < currentTask->unPri)
 		{
-				ptask = OS_EVENT_Wake(&psem->tEvent,NULL,ERR_OK);
-			
-			  if(ptask->unPri < currentTask->unPri)
-				{
-						OS_TASK_Sched();
-				}
+			OS_TASK_Sched();
 		}
-		
-		if(!psem->unMaxCount)      //unMaxCount计数为0表示信号量无限制
+	}
+
+	if(!psem->unMaxCount)      //unMaxCount计数为0表示信号量无限制
+	{
+		if(++psem->unCount > psem->unMaxCount)
 		{
-				if(++psem->unCount > psem->unMaxCount)
-				{
-						psem->unCount = psem->unMaxCount;
-				}
+				psem->unCount = psem->unMaxCount;
 		}
-		else
-		{
-				++psem->unCount;
-		}
-		
-	  OS_TASK_ExitCritical(unStatus);
+	}
+	else
+	{
+		++psem->unCount;
+	}
+
+	OS_TASK_ExitCritical(unStatus);
 }
 
 /**
@@ -129,21 +129,21 @@ void OS_SEM_Notify(p_sem_t psem)
  */
 unsigned int OS_SEM_Destroy(p_sem_t psem)
 {
-		unsigned int unStatus;
-	  unsigned int unCnt = 0;
-		unStatus = OS_TASK_EnterCritical();
-	
-		unCnt = OS_EVENT_ClearAll(&psem->tEvent, NULL, ERR_OK);
-		OS_TASK_ExitCritical(unStatus);
+	unsigned int unStatus;
+	unsigned int unCnt = 0;
+	unStatus = OS_TASK_EnterCritical();
 
-	  if(unCnt > 0)
-		{
-				OS_TASK_Sched();
-		}
-		
-		psem->unCount = 0;
-		
-		return unCnt;
+	unCnt = OS_EVENT_ClearAll(&psem->tEvent, NULL, ERR_OK);
+	OS_TASK_ExitCritical(unStatus);
+
+	if(unCnt > 0)
+	{
+		OS_TASK_Sched();
+	}
+
+	psem->unCount = 0;
+
+	return unCnt;
 }
 
 /**
@@ -154,12 +154,12 @@ unsigned int OS_SEM_Destroy(p_sem_t psem)
  */
 void OS_SEM_GetInfo(p_sem_t psem, p_sem_info_t pinfo)
 {
-		unsigned int unStatus;
-		unStatus = OS_TASK_EnterCritical();
+	unsigned int unStatus;
+	unStatus = OS_TASK_EnterCritical();
 
-	  pinfo->unCount = psem->unCount;
-	  pinfo->unMaxCount = psem->unMaxCount;
-	  pinfo->unTaskCount = OS_EVENT_GetEventCount(&psem->tEvent);
+	pinfo->unCount = psem->unCount;
+	pinfo->unMaxCount = psem->unMaxCount;
+	pinfo->unTaskCount = OS_EVENT_GetEventCount(&psem->tEvent);
 
-		OS_TASK_ExitCritical(unStatus);
+	OS_TASK_ExitCritical(unStatus);
 }

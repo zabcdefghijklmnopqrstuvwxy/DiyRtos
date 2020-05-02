@@ -28,7 +28,8 @@ typedef enum _EVENT_RESULT{
 */
 typedef enum _EVENT_TYPE{
 		EVENT_UNKNOWN,									/**< 未知类型 */
-		EVENT_SEM												/**< 信号量事件类型 */
+		EVENT_SEM,										  /**< 信号量事件类型 */
+	  EVENT_MAIL											/**< 邮箱事件类型 */
 }event_type_t;
 
 /**

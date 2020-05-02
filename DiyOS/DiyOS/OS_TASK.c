@@ -140,9 +140,9 @@ void OS_TASK_Switch(void)
  */
 tTask* OS_TASK_HighestReadyTask(void)
 {
-		node_t *pnode = NULL;
-	  pnode = GET_FIRST_NODE(taskTable[OS_COM_GetFirstBit(&tBitmap)].head);
-		return NODEPARENT(pnode,tTask,tLinkNode);
+	node_t *pnode = NULL;
+	pnode = GET_FIRST_NODE(taskTable[OS_COM_GetFirstBit(&tBitmap)].head);
+	return NODEPARENT(pnode,tTask,tLinkNode);
 }
 
 /**
@@ -153,25 +153,24 @@ tTask* OS_TASK_HighestReadyTask(void)
  */
 void OS_TASK_Sched(void)
 {	
-	  unsigned int status;
-	  tTask *tmptask = NULL;
-	
-	  if(gunSchedule)
-		{
-				return ;
-		}
-	
-		status = OS_TASK_EnterCritical();
-		
-		tmptask = OS_TASK_HighestReadyTask();	
-		if(tmptask != currentTask)   //获取到的最新任务和当前任务相同则不进行切换
-		{
-				nextTask = tmptask;
-			  OS_TASK_Switch();
+	unsigned int status;
+	tTask *tmptask = NULL;
 
-		}
-		
-	 	OS_TASK_ExitCritical(status);		
+	if(gunSchedule)
+	{
+		return ;
+	}
+
+	status = OS_TASK_EnterCritical();
+
+	tmptask = OS_TASK_HighestReadyTask();	
+	if(tmptask != currentTask)   //获取到的最新任务和当前任务相同则不进行切换
+	{
+		nextTask = tmptask;
+		OS_TASK_Switch();
+	}
+
+	OS_TASK_ExitCritical(status);		
 }
 
 /**
@@ -182,13 +181,13 @@ void OS_TASK_Sched(void)
  */
 void OS_TASK_DelayWakeup(p_tTask ptask)
 {
-	  if(NULL == ptask)
-		{
-				return ;
-		}
-	
-	  ptask->tTaskState = ptask->tTaskState & (~TASK_DELAYSTATUS);
-		OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
+	if(NULL == ptask)
+	{
+		return ;
+	}
+
+	ptask->tTaskState = ptask->tTaskState & (~TASK_DELAYSTATUS);
+	OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
 }
 
 /**
@@ -199,13 +198,13 @@ void OS_TASK_DelayWakeup(p_tTask ptask)
  */
 void OS_TASK_DelayWait(p_tTask ptask,int nDelay)
 {
-	  if(NULL == ptask)
-		{
-				return ;
-		}
-	  ptask->nDelay = nDelay;
-		ptask->tTaskState = ptask->tTaskState | TASK_DELAYSTATUS;
-		OS_COM_AddNode(&tNodeList,&ptask->tDelaynode);
+	if(NULL == ptask)
+	{
+			return ;
+	}
+	ptask->nDelay = nDelay;
+	ptask->tTaskState = ptask->tTaskState | TASK_DELAYSTATUS;
+	OS_COM_AddNode(&tNodeList,&ptask->tDelaynode);
 }
 
 /**
@@ -216,8 +215,8 @@ void OS_TASK_DelayWait(p_tTask ptask,int nDelay)
  */
 void OS_TASK_TaskRdy(p_tTask ptask)
 {
-		OS_COM_AddNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务加入链表中
-		OS_COM_SetBitmap(&tBitmap,ptask->unPri);
+	OS_COM_AddNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务加入链表中
+	OS_COM_SetBitmap(&tBitmap,ptask->unPri);
 }
 
 /**
@@ -228,12 +227,12 @@ void OS_TASK_TaskRdy(p_tTask ptask)
  */
 void OS_TASK_TaskUnRdy(p_tTask ptask)
 {
-		OS_COM_DelNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务链表中
-	  
-	  if(0 == OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
-		{
-				OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
-		}
+	OS_COM_DelNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务链表中
+
+	if(0 == OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
+	{
+		OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
+	}
 }
 
 /**
@@ -245,26 +244,26 @@ void OS_TASK_TaskUnRdy(p_tTask ptask)
  */
 void OS_TASK_SuspendTask(p_tTask ptask)
 {
-	  unsigned int unStatus = 0;
-	  unStatus = OS_TASK_EnterCritical();
-    
-		if(!(ptask->tTaskState & TASK_SUSPENDSTATUS))
+	unsigned int unStatus = 0;
+	unStatus = OS_TASK_EnterCritical();
+
+	if(!(ptask->tTaskState & TASK_SUSPENDSTATUS))
+	{
+		if(0 == ptask->nSuspendCount)
 		{
-			if(0 == ptask->nSuspendCount)
-			{
-					ptask->tTaskState = ptask->tTaskState | TASK_SUSPENDSTATUS;
-					OS_TASK_TaskUnRdy(ptask);
-					ptask->nSuspendCount++;
-				  
-					if(currentTask == ptask)
-					{
-							OS_TASK_ExitCritical(unStatus);		
-							OS_TASK_Sched();
-					}
-			}
+				ptask->tTaskState = ptask->tTaskState | TASK_SUSPENDSTATUS;
+				OS_TASK_TaskUnRdy(ptask);
+				ptask->nSuspendCount++;
+			  
+				if(currentTask == ptask)
+				{
+						OS_TASK_ExitCritical(unStatus);		
+						OS_TASK_Sched();
+				}
 		}
-	  
-		OS_TASK_ExitCritical(unStatus);		
+	}
+
+	OS_TASK_ExitCritical(unStatus);		
 }
 
 /**
@@ -275,20 +274,20 @@ void OS_TASK_SuspendTask(p_tTask ptask)
  */
 void OS_TASK_WakeUpTask(p_tTask ptask)
 {
-	  unsigned int unStatus = 0;
-	  unStatus = OS_TASK_EnterCritical();
-	 
-	  if(ptask->tTaskState & TASK_SUSPENDSTATUS)
+	unsigned int unStatus = 0;
+	unStatus = OS_TASK_EnterCritical();
+
+	if(ptask->tTaskState & TASK_SUSPENDSTATUS)
+	{
+		if(ptask->nSuspendCount > 0)
 		{
-			  if(ptask->nSuspendCount > 0)
-				{
-					OS_TASK_TaskRdy(ptask);
-					ptask->nSuspendCount--;
-					ptask->tTaskState = ptask->tTaskState & (~TASK_SUSPENDSTATUS);
-				}
-		}		
-	  
-	  OS_TASK_ExitCritical(unStatus);		
+			OS_TASK_TaskRdy(ptask);
+			ptask->nSuspendCount--;
+			ptask->tTaskState = ptask->tTaskState & (~TASK_SUSPENDSTATUS);
+		}
+	}		
+
+	OS_TASK_ExitCritical(unStatus);		
 }
 
 /**
@@ -299,40 +298,40 @@ void OS_TASK_WakeUpTask(p_tTask ptask)
  */
 void OS_TASK_SystemTickHandler(void)
 {
-		int i = 0;
-	  unsigned int status;
-	  p_node_t pnode = tNodeList.head.next; 
-	  p_tTask ptask = NULL;
-	  status = OS_TASK_EnterCritical();
-	  
-		while(pnode != &tNodeList.head)
+	int i = 0;
+	unsigned int status;
+	p_node_t pnode = tNodeList.head.next; 
+	p_tTask ptask = NULL;
+	status = OS_TASK_EnterCritical();
+
+	while(pnode != &tNodeList.head)
+	{
+		ptask = NODEPARENT(pnode,tTask,tDelaynode);
+		pnode = pnode->next;
+
+		if(ptask->tTaskState & TASK_SUSPENDSTATUS)
 		{
-				ptask = NODEPARENT(pnode,tTask,tDelaynode);
-			  pnode = pnode->next;
-			
-			  if(ptask->tTaskState & TASK_SUSPENDSTATUS)
-				{
-						continue;
-				}
-			
-				if(ptask->nDelay > 0)
-				{
-						ptask->nDelay--;
-						continue;					
-				}
-				OS_TASK_DelayWakeup(ptask);
-				OS_TASK_TaskRdy(ptask);					
+			continue;
 		}
-	
-		if(0 == --currentTask->nSlice)
+
+		if(ptask->nDelay > 0)
 		{
-				currentTask->nSlice = TASK_MAX_SLICE;
-				OS_COM_DelNode(&taskTable[currentTask->unPri],&currentTask->tLinkNode);
-				OS_COM_AddNode(&taskTable[currentTask->unPri],&currentTask->tLinkNode);
+			ptask->nDelay--;
+			continue;					
 		}
-		
-	  OS_TASK_ExitCritical(status);		
-		OS_TASK_Sched();
+		OS_TASK_DelayWakeup(ptask);
+		OS_TASK_TaskRdy(ptask);					
+	}
+
+	if(0 == --currentTask->nSlice)
+	{
+		currentTask->nSlice = TASK_MAX_SLICE;
+		OS_COM_DelNode(&taskTable[currentTask->unPri],&currentTask->tLinkNode);
+		OS_COM_AddNode(&taskTable[currentTask->unPri],&currentTask->tLinkNode);
+	}
+
+	OS_TASK_ExitCritical(status);		
+	OS_TASK_Sched();
 }
 
 /**
@@ -343,7 +342,7 @@ void OS_TASK_SystemTickHandler(void)
 */
 void SysTick_Handler(void)
 {
-		OS_TASK_SystemTickHandler();
+	OS_TASK_SystemTickHandler();
 }
 
 /**
@@ -368,8 +367,8 @@ void OS_TASK_SetSysTickPeriod(unsigned int ms)
  */
 void OS_TASK_RunFirst(void)
 {
-		__set_PSP(0);
-	  OS_TASK_TriggerPendSVC();	
+	__set_PSP(0);
+	OS_TASK_TriggerPendSVC();	
 }
 
 /**
@@ -380,12 +379,12 @@ void OS_TASK_RunFirst(void)
  */
 void OS_TASK_Delay(unsigned int delay)
 {
-	  unsigned int status = 0;
-	  status = OS_TASK_EnterCritical();
-	  OS_TASK_DelayWait(currentTask,delay);
-	  OS_TASK_TaskUnRdy(currentTask);
-		OS_TASK_ExitCritical(status);		
-		OS_TASK_Sched();
+	unsigned int status = 0;
+	status = OS_TASK_EnterCritical();
+	OS_TASK_DelayWait(currentTask,delay);
+	OS_TASK_TaskUnRdy(currentTask);
+	OS_TASK_ExitCritical(status);		
+	OS_TASK_Sched();
 }
 
 /**
@@ -397,10 +396,10 @@ void OS_TASK_Delay(unsigned int delay)
  */
 unsigned int OS_TASK_EnterCritical(void)
 {
-	   unsigned int unPrimask = __get_PRIMASK();
-		 __disable_irq();
-	
-		 return unPrimask;
+	unsigned int unPrimask = __get_PRIMASK();
+	__disable_irq();
+
+	return unPrimask;
 }
 
 /**
@@ -411,7 +410,7 @@ unsigned int OS_TASK_EnterCritical(void)
  */
 void OS_TASK_ExitCritical(unsigned int status)
 {
-		__set_PRIMASK(status);
+	__set_PRIMASK(status);
 }
 
 /**
@@ -422,7 +421,7 @@ void OS_TASK_ExitCritical(unsigned int status)
  */
 void OS_TASK_ScheduleInit(void)
 {
-		gunSchedule = 0;
+	gunSchedule = 0;
 }
 
 /**
@@ -433,12 +432,12 @@ void OS_TASK_ScheduleInit(void)
  */
 void OS_TASK_ScheduleEnable(void)
 {
-	  unsigned int unStatus = 0;
-		unStatus = OS_TASK_EnterCritical();
-	
-	  gunSchedule++;
-	
-	  OS_TASK_ExitCritical(unStatus);
+	unsigned int unStatus = 0;
+	unStatus = OS_TASK_EnterCritical();
+
+	gunSchedule++;
+
+	OS_TASK_ExitCritical(unStatus);
 }	
 
 /**
@@ -449,15 +448,15 @@ void OS_TASK_ScheduleEnable(void)
  */
 void OS_TASK_ScheduleDisable(void)
 {
-		unsigned int unStatus = 0;
-		unStatus = OS_TASK_EnterCritical();
-	
-	  if(gunSchedule > 0)
-		{
-				gunSchedule--;
-		}
-	
-	  OS_TASK_ExitCritical(unStatus);
+	unsigned int unStatus = 0;
+	unStatus = OS_TASK_EnterCritical();
+
+	if(gunSchedule > 0)
+	{
+		gunSchedule--;
+	}
+
+	OS_TASK_ExitCritical(unStatus);
 }
 
 /**
@@ -468,18 +467,18 @@ void OS_TASK_ScheduleDisable(void)
  */
 int OS_TASK_DeleteReq(p_tTask ptask)
 {
-		unsigned int unStatus = 0;
-	
-	  if(NULL == ptask)
-		{
-				return -1;
-		}
-	
-		unStatus = OS_TASK_EnterCritical();	 
-	  ptask->nDeleteFlag = 1;
-	 	OS_TASK_ExitCritical(unStatus);
-		
-		return 0;
+	unsigned int unStatus = 0;
+
+	if(NULL == ptask)
+	{
+		return -1;
+	}
+
+	unStatus = OS_TASK_EnterCritical();	 
+	ptask->nDeleteFlag = 1;
+	OS_TASK_ExitCritical(unStatus);
+
+	return 0;
 }
 
 /**
@@ -490,12 +489,12 @@ int OS_TASK_DeleteReq(p_tTask ptask)
  */
 int OS_TASK_IsDelete(p_tTask ptask)
 {
-		if(NULL == ptask)
-		{
-				return -1;
-		}
-		
-		return ptask->nDeleteFlag;
+	if(NULL == ptask)
+	{
+			return -1;
+	}
+	
+	return ptask->nDeleteFlag;
 }
 
 
@@ -507,25 +506,25 @@ int OS_TASK_IsDelete(p_tTask ptask)
  */
 int OS_TASK_ScheduleRemove(p_tTask ptask)
 {
-		unsigned int unStatus = 0;
+	unsigned int unStatus = 0;
 
-		if(NULL == ptask)
-		{
-				return -1;
-		}
-		
-		unStatus = OS_TASK_EnterCritical();	 
-		
-		OS_COM_DelNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务链表中
-	  
-	  if(0 == OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
-		{
-				OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
-		}
-		
-	  OS_TASK_ExitCritical(unStatus);
-		
-		return 0;
+	if(NULL == ptask)
+	{
+		return -1;
+	}
+
+	unStatus = OS_TASK_EnterCritical();	 
+
+	OS_COM_DelNode(&taskTable[ptask->unPri],&ptask->tLinkNode);  //同优先级任务链表中
+
+	if(0 == OS_COM_GetNodeCount(&taskTable[ptask->unPri]))
+	{
+		OS_COM_ClrBitmap(&tBitmap,ptask->unPri);
+	}
+
+	OS_TASK_ExitCritical(unStatus);
+
+	return 0;
 }
 
 /**
@@ -536,21 +535,21 @@ int OS_TASK_ScheduleRemove(p_tTask ptask)
  */
 int OS_TASK_DelayRemove(p_tTask ptask)
 {
-	  unsigned int unStatus = 0;
+	unsigned int unStatus = 0;
 
-		if(NULL == ptask)
-		{
-				return -1;
-		}
-	
-	  unStatus = OS_TASK_EnterCritical();	 
-		
-	  ptask->tTaskState = ptask->tTaskState & (~TASK_DELAYSTATUS);
-		OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
-		
-    OS_TASK_ExitCritical(unStatus);
-		
-		return 0;
+	if(NULL == ptask)
+	{
+		return -1;
+	}
+
+	unStatus = OS_TASK_EnterCritical();	 
+
+	ptask->tTaskState = ptask->tTaskState & (~TASK_DELAYSTATUS);
+	OS_COM_DelNode(&tNodeList,&ptask->tDelaynode);
+
+	OS_TASK_ExitCritical(unStatus);
+
+	return 0;
 }
 
 /**
@@ -561,13 +560,13 @@ int OS_TASK_DelayRemove(p_tTask ptask)
  */
 void OS_TASK_RegisterCLearFn(p_tTask ptask,clearfn fn,void* param)
 {
-		unsigned int unStatus = 0;
-	  unStatus = OS_TASK_EnterCritical();	 
+	unsigned int unStatus = 0;
+	unStatus = OS_TASK_EnterCritical();	 
 
-		ptask->clearcb = fn;
-	  ptask->clearparam = param;
-	
-	  OS_TASK_ExitCritical(unStatus);
+	ptask->clearcb = fn;
+	ptask->clearparam = param;
+
+	OS_TASK_ExitCritical(unStatus);
 }
 
 
@@ -579,28 +578,28 @@ void OS_TASK_RegisterCLearFn(p_tTask ptask,clearfn fn,void* param)
  */
 int OS_TASK_ForceDelete(p_tTask ptask)
 {
-		if(NULL == ptask)
-		{
-				return -1;
-		}
-		
-		OS_TASK_ScheduleRemove(ptask);
-		
-		OS_TASK_DelayRemove(ptask);
-		
-		ptask->tTaskState = ptask->tTaskState | TASK_DESTROYSTATUS;
+	if(NULL == ptask)
+	{
+		return -1;
+	}
 
-		if(ptask->clearcb)
-		{
-				ptask->clearcb(ptask->clearparam);
-		}
-		
-		if(currentTask == ptask)   //当前任务和删除任务一致时调用任务调度函数
-		{
-				OS_TASK_Sched();
-		}
-		
-		return 0;
+	OS_TASK_ScheduleRemove(ptask);
+
+	OS_TASK_DelayRemove(ptask);
+
+	ptask->tTaskState = ptask->tTaskState | TASK_DESTROYSTATUS;
+
+	if(ptask->clearcb)
+	{
+		ptask->clearcb(ptask->clearparam);
+	}
+
+	if(currentTask == ptask)   //当前任务和删除任务一致时调用任务调度函数
+	{
+		OS_TASK_Sched();
+	}
+
+	return 0;
 }
 
 /**
@@ -611,16 +610,16 @@ int OS_TASK_ForceDelete(p_tTask ptask)
  */
 void OS_TASK_SelfDelete(void)
 {
-		OS_TASK_ScheduleRemove(currentTask);
-	  
-		if(currentTask->clearcb)   //如果有清理函数进行清理处理
-		{
-				currentTask->clearcb(currentTask->clearparam);
-		}
+	OS_TASK_ScheduleRemove(currentTask);
 
-		currentTask->tTaskState = currentTask->tTaskState | TASK_DESTROYSTATUS;
+	if(currentTask->clearcb)   //如果有清理函数进行清理处理
+	{
+			currentTask->clearcb(currentTask->clearparam);
+	}
 
-	  OS_TASK_Sched();	  //当前任务删除后，调用任务调度函数	
+	currentTask->tTaskState = currentTask->tTaskState | TASK_DESTROYSTATUS;
+
+	OS_TASK_Sched();	  //当前任务删除后，调用任务调度函数	
 }
 
 /**
@@ -631,21 +630,21 @@ void OS_TASK_SelfDelete(void)
  */
 int OS_TASK_GetTaskInfo(p_tTask ptask,p_task_info_t pinfo)
 {
-		unsigned int unStatus = 0;
-		if(NULL == ptask || NULL == pinfo)
-		{
-				return -1;
-		}
+	unsigned int unStatus = 0;
+	if(NULL == ptask || NULL == pinfo)
+	{
+		return -1;
+	}
 
-	  unStatus = OS_TASK_EnterCritical();	 
-		
-		pinfo->nDelayTick = ptask->nDelay;
-		pinfo->nSlice = ptask->nSlice;
-		pinfo->unPri = ptask->unPri;
-		pinfo->unTaskState = ptask->tTaskState;
-		OS_TASK_ExitCritical(unStatus);
+	unStatus = OS_TASK_EnterCritical();	 
 
-		return 0;
+	pinfo->nDelayTick = ptask->nDelay;
+	pinfo->nSlice = ptask->nSlice;
+	pinfo->unPri = ptask->unPri;
+	pinfo->unTaskState = ptask->tTaskState;
+	OS_TASK_ExitCritical(unStatus);
+
+	return 0;
 }
 
 /**
@@ -656,16 +655,16 @@ int OS_TASK_GetTaskInfo(p_tTask ptask,p_task_info_t pinfo)
  */
 void OS_TASK_OSInit(void)
 {
-	  int i = 0;
-	   __set_PSP(0);
-	  MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
-	
-		OS_TASK_SetSysTickPeriod(10);   /**< 设置任务时间片，默认为10ms */
-		OS_TASK_ScheduleInit();
-		OS_COM_InitList(&tNodeList);  //任务链表初始化
-	
-	  for(i = 0; i < TASK_MAX_NUM; i++)
-		{
-				OS_COM_InitList(&taskTable[i]);  //任务链表初始化
-		}
+	int i = 0;
+	__set_PSP(0);
+	MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
+
+	OS_TASK_SetSysTickPeriod(10);   /**< 设置任务时间片，默认为10ms */
+	OS_TASK_ScheduleInit();
+	OS_COM_InitList(&tNodeList);  //任务链表初始化
+
+	for(i = 0; i < TASK_MAX_NUM; i++)
+	{
+		OS_COM_InitList(&taskTable[i]);  //任务链表初始化
+	}
 }

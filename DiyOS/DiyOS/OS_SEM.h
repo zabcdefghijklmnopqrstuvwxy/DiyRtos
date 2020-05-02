@@ -30,9 +30,9 @@ typedef struct _SEM_T
 */
 typedef struct _SEM_INFO
 {
-		unsigned int unCount;            /**< 信号量计数值 */
-	  unsigned int unMaxCount;			   /**< 信号量最大计数值 */
-	  unsigned int unTaskCount;				 /**< 信号量的任务数 */
+	unsigned int unCount;            /**< 信号量计数值 */
+	unsigned int unMaxCount;			   /**< 信号量最大计数值 */
+	unsigned int unTaskCount;				 /**< 信号量的任务数 */
 }sem_info_t,*p_sem_info_t;
 
 /**
