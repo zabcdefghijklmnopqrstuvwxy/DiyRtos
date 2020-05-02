@@ -65,5 +65,20 @@ int OS_MAIL_NoWait(p_mail_msg_t pmbox, void **pmsg);
  */
 int OS_MAIL_Notify(p_mail_msg_t pmbox, void *pmsg,unsigned int unNotifyOption);
 
+/**
+ * @brief 邮箱缓存清空处理
+ * @param pmbox 邮箱信息指针
+ * @note 判断邮箱计数是否为空，如果为空则将读写位置与缓存数据清零处理
+ * @retval 无
+ */
+int OS_MAIL_Flush(p_mail_msg_t pmbox);
+
+/**
+ * @brief 邮箱销毁
+ * @param pmbox 邮箱信息指针
+ * @note 将pmbox中的事件链表清空，当等待事件链表中有等待任务时则进行相应的切换
+ * @retval 无
+ */
+int OS_MAIL_Destory(p_mail_msg_t pmbox);
 
 #endif

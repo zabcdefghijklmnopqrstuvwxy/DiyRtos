@@ -273,6 +273,12 @@ Section Cross References
     os_event.o(i.OS_EVENT_Wake) refers to os_task.o(i.OS_TASK_DelayWakeup) for OS_TASK_DelayWakeup
     os_event.o(i.OS_EVENT_Wake) refers to os_task.o(i.OS_TASK_TaskRdy) for OS_TASK_TaskRdy
     os_event.o(i.OS_EVENT_Wake) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
+    os_mail.o(i.OS_MAIL_Destory) refers to os_task.o(i.OS_TASK_EnterCritical) for OS_TASK_EnterCritical
+    os_mail.o(i.OS_MAIL_Destory) refers to os_event.o(i.OS_EVENT_ClearAll) for OS_EVENT_ClearAll
+    os_mail.o(i.OS_MAIL_Destory) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
+    os_mail.o(i.OS_MAIL_Destory) refers to os_task.o(i.OS_TASK_Sched) for OS_TASK_Sched
+    os_mail.o(i.OS_MAIL_Flush) refers to os_task.o(i.OS_TASK_EnterCritical) for OS_TASK_EnterCritical
+    os_mail.o(i.OS_MAIL_Flush) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
     os_mail.o(i.OS_MAIL_Init) refers to os_event.o(i.OS_EVENT_Init) for OS_EVENT_Init
     os_mail.o(i.OS_MAIL_NoWait) refers to os_task.o(i.OS_TASK_EnterCritical) for OS_TASK_EnterCritical
     os_mail.o(i.OS_MAIL_NoWait) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
@@ -520,12 +526,14 @@ Removing Unused input sections from the image.
     Removing os_mail.o(.rev16_text), (4 bytes).
     Removing os_mail.o(.revsh_text), (4 bytes).
     Removing os_mail.o(.rrx_text), (6 bytes).
+    Removing os_mail.o(i.OS_MAIL_Destory), (40 bytes).
+    Removing os_mail.o(i.OS_MAIL_Flush), (30 bytes).
     Removing os_mail.o(i.OS_MAIL_Init), (28 bytes).
     Removing os_mail.o(i.OS_MAIL_NoWait), (70 bytes).
     Removing os_mail.o(i.OS_MAIL_Notify), (196 bytes).
     Removing os_mail.o(i.OS_MAIL_Wait), (104 bytes).
 
-216 unused section(s) (total 13462 bytes) removed from the image.
+218 unused section(s) (total 13532 bytes) removed from the image.
 
 ==============================================================================
 
@@ -872,20 +880,20 @@ Memory Map of the image
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x08000000   0x08000000   0x00000130   Data   RO            3    RESET               startup_stm32f103xe.o
-    0x08000130   0x08000130   0x00000000   Code   RO         1753  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x08000130   0x08000130   0x00000004   Code   RO         1760    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x08000134   0x08000134   0x00000004   Code   RO         1763    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x08000138   0x08000138   0x00000000   Code   RO         1765    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x08000138   0x08000138   0x00000000   Code   RO         1767    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x08000138   0x08000138   0x00000008   Code   RO         1768    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x08000140   0x08000140   0x00000000   Code   RO         1770    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x08000140   0x08000140   0x00000000   Code   RO         1772    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x08000140   0x08000140   0x00000004   Code   RO         1761    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x08000130   0x08000130   0x00000000   Code   RO         1765  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x08000130   0x08000130   0x00000004   Code   RO         1772    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x08000134   0x08000134   0x00000004   Code   RO         1775    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x08000138   0x08000138   0x00000000   Code   RO         1777    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x08000138   0x08000138   0x00000000   Code   RO         1779    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x08000138   0x08000138   0x00000008   Code   RO         1780    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x08000140   0x08000140   0x00000000   Code   RO         1782    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x08000140   0x08000140   0x00000000   Code   RO         1784    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x08000140   0x08000140   0x00000004   Code   RO         1773    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
     0x08000144   0x08000144   0x00000030   Code   RO         1355    .emb_text           os_task.o
     0x08000174   0x08000174   0x00000024   Code   RO            4    .text               startup_stm32f103xe.o
-    0x08000198   0x08000198   0x00000024   Code   RO         1758    .text               mc_w.l(memseta.o)
-    0x080001bc   0x080001bc   0x00000024   Code   RO         1774    .text               mc_w.l(init.o)
-    0x080001e0   0x080001e0   0x00000056   Code   RO         1784    .text               mc_w.l(__dczerorl2.o)
+    0x08000198   0x08000198   0x00000024   Code   RO         1770    .text               mc_w.l(memseta.o)
+    0x080001bc   0x080001bc   0x00000024   Code   RO         1786    .text               mc_w.l(init.o)
+    0x080001e0   0x080001e0   0x00000056   Code   RO         1796    .text               mc_w.l(__dczerorl2.o)
     0x08000236   0x08000236   0x00000004   Code   RO          164    i.BusFault_Handler  stm32f1xx_it.o
     0x0800023a   0x0800023a   0x00000002   Code   RO          165    i.DebugMon_Handler  stm32f1xx_it.o
     0x0800023c   0x0800023c   0x00000002   Code   RO           13    i.Error_Handler     main.o
@@ -938,16 +946,16 @@ Memory Map of the image
     0x08000f8a   0x08000f8a   0x00000066   Code   RO           15    i.SystemClock_Config  main.o
     0x08000ff0   0x08000ff0   0x00000058   Code   RO         1246    i.SystemInit        system_stm32f1xx.o
     0x08001048   0x08001048   0x00000004   Code   RO          170    i.UsageFault_Handler  stm32f1xx_it.o
-    0x0800104c   0x0800104c   0x0000000e   Code   RO         1778    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0800105a   0x0800105a   0x00000002   Code   RO         1779    i.__scatterload_null  mc_w.l(handlers.o)
-    0x0800105c   0x0800105c   0x0000000e   Code   RO         1780    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x0800104c   0x0800104c   0x0000000e   Code   RO         1790    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x0800105a   0x0800105a   0x00000002   Code   RO         1791    i.__scatterload_null  mc_w.l(handlers.o)
+    0x0800105c   0x0800105c   0x0000000e   Code   RO         1792    i.__scatterload_zeroinit  mc_w.l(handlers.o)
     0x0800106a   0x0800106a   0x00000002   PAD
     0x0800106c   0x0800106c   0x00000084   Code   RO           17    i.main              main.o
     0x080010f0   0x080010f0   0x0000001c   Code   RO           18    i.task1             main.o
     0x0800110c   0x0800110c   0x00000014   Code   RO           19    i.task2             main.o
     0x08001120   0x08001120   0x00000014   Code   RO           20    i.taskIdle          main.o
     0x08001134   0x08001134   0x00000018   Data   RO         1247    .constdata          system_stm32f1xx.o
-    0x0800114c   0x0800114c   0x00000020   Data   RO         1776    Region$$Table       anon$$obj.o
+    0x0800114c   0x0800114c   0x00000020   Data   RO         1788    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800116c, Size: 0x00003780, Max: 0x00010000, ABSOLUTE, COMPRESSED[0x00000024])

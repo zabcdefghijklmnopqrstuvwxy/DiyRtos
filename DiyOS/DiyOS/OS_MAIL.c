@@ -87,7 +87,7 @@ int OS_MAIL_NoWait(p_mail_msg_t pmbox, void **pmsg)
 
 /**
  * @brief 邮箱写入信息
- * @param pmbox 邮箱信息指针，pmsg 写入邮箱的信息指针
+ * @param pmbox 邮箱信息指针，pmsg 写入邮箱的信息指针，unNotifyOption 优先写入标志
  * @note 
  * @retval 无
  */
@@ -136,4 +136,50 @@ int OS_MAIL_Notify(p_mail_msg_t pmbox, void *pmsg,unsigned int unNotifyOption)
 	}
 		
 	OS_TASK_ExitCritical(status);	
+}
+
+/**
+ * @brief 邮箱缓存清空处理
+ * @param pmbox 邮箱信息指针
+ * @note 判断邮箱计数是否为空，如果为空则将读写位置与缓存数据清零处理
+ * @retval 无
+ */
+int OS_MAIL_Flush(p_mail_msg_t pmbox)
+{
+	unsigned int status;	
+	status = OS_TASK_EnterCritical();	
+	
+	if(pmbox->unMsgCnt == 0)
+	{
+		pmbox->unReadPos = 0;
+		pmbox->unWritePos = 0;
+	}
+	
+	OS_TASK_ExitCritical(status);	
+	
+	return ERR_OK;
+}
+
+/**
+ * @brief 邮箱销毁
+ * @param pmbox 邮箱信息指针
+ * @note 将pmbox中的事件链表清空，当等待事件链表中有等待任务时则进行相应的切换
+ * @retval 无
+ */
+int OS_MAIL_Destory(p_mail_msg_t pmbox)
+{
+	unsigned int status;
+	unsigned int unCnt = 0;
+	status = OS_TASK_EnterCritical();
+	
+	unCnt = OS_EVENT_ClearAll(&pmbox->tEvent, NULL, ERR_OK);
+	
+	OS_TASK_ExitCritical(status);	
+	
+	if(unCnt > 0)
+	{
+		OS_TASK_Sched();
+	}
+	
+	return ERR_OK;
 }
