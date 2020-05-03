@@ -298,7 +298,6 @@ void OS_TASK_WakeUpTask(p_tTask ptask)
  */
 void OS_TASK_SystemTickHandler(void)
 {
-	int i = 0;
 	unsigned int status;
 	p_node_t pnode = tNodeList.head.next; 
 	p_tTask ptask = NULL;

@@ -136,6 +136,8 @@ int OS_MAIL_Notify(p_mail_msg_t pmbox, void *pmsg,unsigned int unNotifyOption)
 	}
 		
 	OS_TASK_ExitCritical(status);	
+	
+	return ERR_OK;
 }
 
 /**
@@ -189,7 +191,8 @@ int OS_MAIL_Destory(p_mail_msg_t pmbox)
  * @param pinfo 邮箱信息指针
  * @note 无
  * @retval 无
- */
+ */;
+ 
 int OS_MAIL_GetInfo(p_mail_msg_t pmbox, p_mail_info_t pinfo)
 {
 	unsigned int status;
@@ -198,6 +201,8 @@ int OS_MAIL_GetInfo(p_mail_msg_t pmbox, p_mail_info_t pinfo)
 	pinfo->unMailMsgCnt = pmbox->unMsgCnt;
 	pinfo->unWaitTaskCnt = OS_EVENT_GetEventCount(&pmbox->tEvent);
 		
-	OS_TASK_ExitCritical(status);	
+	OS_TASK_ExitCritical(status);
+
+	return ERR_OK;
 }
 
