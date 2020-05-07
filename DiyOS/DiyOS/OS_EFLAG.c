@@ -168,3 +168,39 @@ int OS_EFLAG_Notify(p_eflag_t pevent, unsigned int unSetMode, unsigned int unFla
 	
 	return ERR_OK;
 }
+
+/**
+* @brief 事件标志组销毁处理
+* @param[in] pevent 事件标志信息指针
+* @note 将事件标志组队列销毁处理
+* @retval 返回销毁时等待任务的个数数量
+*/
+unsigned int OS_EFLAG_Destroy(p_eflag_t pevent)
+{
+	unsigned int unStatus;
+	unsigned int unCnt = 0;
+	unStatus = OS_TASK_EnterCritical();
+	
+	unCnt = OS_EVENT_ClearAll(&pevent->tEvent, NULL, ERR_OK);
+	
+	OS_TASK_ExitCritical(unStatus);
+
+	return unCnt;
+}
+
+/**
+* @brief 事件标志组销毁处理
+* @param[in] pevent 事件标志信息指针，pinfo 事件标志组信息
+* @note 将事件标志组队列销毁处理
+* @retval 
+*/
+void OS_EFLAG_GetInfo(p_eflag_t pevent, p_eflag_info_t pinfo)
+{
+	unsigned int unStatus;
+	unStatus = OS_TASK_EnterCritical();
+	
+	pinfo->unFlag = pevent->unFlag;
+	pinfo->unWaitTaskCnt = OS_EVENT_GetEventCount(&pevent->tEvent);
+
+	OS_TASK_ExitCritical(unStatus);
+}

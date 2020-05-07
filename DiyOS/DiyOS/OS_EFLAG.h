@@ -38,5 +38,61 @@ typedef struct _EFLAG_T
 	unsigned int unFlag;		/**< 事件标志 */
 }eflag_t,*p_eflag_t;
 
+/**
+* @brief 事件标志查询信息
+*/
+typedef struct _EFLAG_INFO_T
+{
+	unsigned int unFlag;			/**< 事件标志组的标志信息 */
+	unsigned int unWaitTaskCnt;		/**< 事件标志组的等待任务数量 */
+}eflag_info_t,*p_eflag_info_t;
+
+/**
+* @brief 事件标志组初始化
+* @param[in] pevent 事件标志信息指针
+* @note 初始化事件标志控制块链表
+* @retval 返回0表示初始化成功，返回非0表示失败
+*/
+int OS_EFLAG_Init(p_eflag_t pevent, unsigned int unFlag);
+
+/**
+* @brief 事件标志等待
+* @param[in] pevent 事件标志信息指针，unWaitType等待的事件类型, unRequestFlag 待等待的结果
+* @note 查询事件标志位是否满足，如果满足则返回，否则加入等待事件标志队列中
+* @retval 
+*/
+int OS_EFLAG_Wait(p_eflag_t pevent, unsigned int unWaitType, unsigned int unRequestFlag, unsigned int *unResultFlag, unsigned int unTimeout);
+
+/**
+* @brief 事件标志组不等待处理
+* @param[in] pevent 事件标志信息指针，unSetMode设置模式，unFlag 设置的标志
+* @note 
+* @retval 
+*/
+int OS_EFLAG_NoWait(p_eflag_t pevent, unsigned int unWaitType, unsigned int unRequestFlag, unsigned int *unResultFlag);
+
+/**
+* @brief 事件标志组通知
+* @param[in] pevent 事件标志信息指针，unSetMode设置模式，unFlag 设置的标志
+* @note 遍历事件标志组等待链表，将符合事件标志条件的任务唤醒
+* @retval 
+*/
+int OS_EFLAG_Notify(p_eflag_t pevent, unsigned int unSetMode, unsigned int unFlag);
+
+/**
+* @brief 事件标志组销毁处理
+* @param[in] pevent 事件标志信息指针
+* @note 将事件标志组队列销毁处理
+* @retval 返回销毁时等待任务的个数数量
+*/
+unsigned int OS_EFLAG_Destroy(p_eflag_t pevent);
+
+/**
+* @brief 事件标志组销毁处理
+* @param[in] pevent 事件标志信息指针，pinfo 事件标志组信息
+* @note 将事件标志组队列销毁处理
+* @retval 
+*/
+void OS_EFLAG_GetInfo(p_eflag_t pevent, p_eflag_info_t pinfo);
 
 #endif
