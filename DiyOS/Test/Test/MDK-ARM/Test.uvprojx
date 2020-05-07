@@ -522,6 +522,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\DiyOS\OS_MAIL.c</FilePath>
             </File>
+            <File>
+              <FileName>OS_EFLAG.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\DiyOS\OS_EFLAG.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

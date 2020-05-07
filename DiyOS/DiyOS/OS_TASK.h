@@ -83,20 +83,22 @@ struct _EVENT_BLOCK;
 *@brief 任务数据结构
 */
 typedef struct _tTask{
-		unsigned int *stack;       /**< 独立栈指针 */
-	  node_t tLinkNode;					 /**< 同优先级链表 */ 
-	  int nDelay;                /**< 任务延时计数 */
-	  node_t tDelaynode;         /**< 延时任务节点 */
-	  unsigned int unPri;        /**< 任务优先级 */
-	  unsigned int tTaskState;   /**< 任务状态 */
-	  int nSlice;			 					 /**< 任务时间片 */
-	  int nSuspendCount;				 /**< 任务挂起次数 */
-	  clearfn clearcb;					 /**< 清理函数 */
-	  void *clearparam;          /**< 清理函数参数 */
-	  int nDeleteFlag;           /**< 删除标志 */
-	  struct _EVENT_BLOCK	*pevent;		 /**< 事件块管理*/
-		void *eventmsg;						 /**< 事件块信息 */
-	  unsigned int unEventResult;/**< 事件结果 */
+	unsigned int *stack;       /**< 独立栈指针 */
+	node_t tLinkNode;					 /**< 同优先级链表 */ 
+	int nDelay;                /**< 任务延时计数 */
+	node_t tDelaynode;         /**< 延时任务节点 */
+	unsigned int unPri;        /**< 任务优先级 */
+	unsigned int tTaskState;   /**< 任务状态 */
+	int nSlice;			 					 /**< 任务时间片 */
+	int nSuspendCount;				 /**< 任务挂起次数 */
+	clearfn clearcb;					 /**< 清理函数 */
+	void *clearparam;          /**< 清理函数参数 */
+	int nDeleteFlag;           /**< 删除标志 */
+	struct _EVENT_BLOCK	*pevent;		 /**< 事件块管理*/
+	void *eventmsg;						 /**< 事件块信息 */
+	unsigned int unEventResult;  /**< 事件结果 */
+	unsigned int unWaitFlagType;   /**< 事件标志类型 */
+	unsigned int unEventFlag;      /**< 事件标志 */
 }tTask,*p_tTask;
 
 /**

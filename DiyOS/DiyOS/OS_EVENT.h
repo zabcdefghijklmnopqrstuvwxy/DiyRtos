@@ -27,17 +27,18 @@ typedef enum _EVENT_RESULT{
 *@brief 事件块类型
 */
 typedef enum _EVENT_TYPE{
-		EVENT_UNKNOWN,									/**< 未知类型 */
-		EVENT_SEM,										  /**< 信号量事件类型 */
-	  EVENT_MAIL											/**< 邮箱事件类型 */
+	EVENT_UNKNOWN,									/**< 未知类型 */
+	EVENT_SEM,										/**< 信号量事件类型 */
+	EVENT_MAIL,									    /**< 邮箱事件类型 */
+	EVENT_FLAG										/**< 事件标志类型 */
 }event_type_t;
 
 /**
 *@brief 事件块管理结构
 */
 typedef struct _EVENT_BLOCK{
-		event_type_t tEventType;			/**< 事件块类型 */
-		nodelist_t	tEventList;				/**< 事件列表 */
+	event_type_t tEventType;			/**< 事件块类型 */
+	nodelist_t	tEventList;				/**< 事件列表 */
 }event_block_t,*p_event_block_t;
 
 /**

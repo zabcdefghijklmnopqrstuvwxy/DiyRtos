@@ -12,6 +12,7 @@
 
 #include "OS_TASK.h"
 #include "OS_EVENT.h"
+#include "OS_EFLAG.h"
 
 #define			NVIC_INT_CTRL			0xE000ED04
 #define			NVIC_PENDSVSET		0x10000000
@@ -73,40 +74,42 @@ PendSVHandler_nosave
  */
 void OS_TASK_Init(tTask *task,void (*entry)(void*),void *param,task_prio_t prio,unsigned int *stack)
 {
-		*(--stack) = (unsigned long)(1 << 24); //cpsr标志设置
-		*(--stack) = (unsigned long)entry;		 //保存任务入口地址
-		*(--stack) = (unsigned long)0x14;		   //保存lr寄存器值
-		*(--stack) = (unsigned long)0x12;		   //保存R12寄存器值
-		*(--stack) = (unsigned long)0x3;		   //保存R3寄存器值
-		*(--stack) = (unsigned long)0x2;		   //保存R2寄存器值
-		*(--stack) = (unsigned long)0x1;		   //保存R1寄存器值
-		*(--stack) = (unsigned long)param;		 //保存任务参数指针
+	*(--stack) = (unsigned long)(1 << 24); //cpsr标志设置
+	*(--stack) = (unsigned long)entry;		 //保存任务入口地址
+	*(--stack) = (unsigned long)0x14;		   //保存lr寄存器值
+	*(--stack) = (unsigned long)0x12;		   //保存R12寄存器值
+	*(--stack) = (unsigned long)0x3;		   //保存R3寄存器值
+	*(--stack) = (unsigned long)0x2;		   //保存R2寄存器值
+	*(--stack) = (unsigned long)0x1;		   //保存R1寄存器值
+	*(--stack) = (unsigned long)param;		 //保存任务参数指针
 
-		*(--stack) = (unsigned long)0x11;		   //保存R11寄存器值
-		*(--stack) = (unsigned long)0x10;		   //保存R10寄存器值
-		*(--stack) = (unsigned long)0x9;		   //保存R9寄存器值
-		*(--stack) = (unsigned long)0x8;		   //保存R8寄存器值
-		*(--stack) = (unsigned long)0x7;		   //保存R7寄存器值
-		*(--stack) = (unsigned long)0x6;		   //保存R6寄存器值
-		*(--stack) = (unsigned long)0x5;		   //保存R5寄存器值
-		*(--stack) = (unsigned long)0x4;		   //保存R4寄存器值
+	*(--stack) = (unsigned long)0x11;		   //保存R11寄存器值
+	*(--stack) = (unsigned long)0x10;		   //保存R10寄存器值
+	*(--stack) = (unsigned long)0x9;		   //保存R9寄存器值
+	*(--stack) = (unsigned long)0x8;		   //保存R8寄存器值
+	*(--stack) = (unsigned long)0x7;		   //保存R7寄存器值
+	*(--stack) = (unsigned long)0x6;		   //保存R6寄存器值
+	*(--stack) = (unsigned long)0x5;		   //保存R5寄存器值
+	*(--stack) = (unsigned long)0x4;		   //保存R4寄存器值
 
-		task->stack = stack;					         //保存任务的独立栈
-		task->nDelay = 0;                      //初始化延时计数
-		task->unPri = prio;                    //优先级初始化
-		task->tTaskState = 0;   							 //设置任务为就绪状态
-		task->nSlice = TASK_MAX_SLICE;				 //时间片初始化
-		task->nSuspendCount = 0;							 //任务挂起次数初始化
-		task->clearcb = NULL;                  //清理函数初始化为空
-		task->clearparam = NULL;							 //清理函数参数初始化为空
-	  task->nDeleteFlag = 0;	               //删除标志清零 
-		task->unEventResult = EVENT_OK;				 //事件结果初始化为OK状态
-		
-		OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
-		
-	  OS_COM_AddNode(&taskTable[prio],&task->tLinkNode);  //同优先级任务加入链表中
-		
-		OS_EVENT_Init(task->pevent,EVENT_UNKNOWN);       //事件块初始化
+	task->stack = stack;					         //保存任务的独立栈
+	task->nDelay = 0;                      //初始化延时计数
+	task->unPri = prio;                    //优先级初始化
+	task->tTaskState = 0;   							 //设置任务为就绪状态
+	task->nSlice = TASK_MAX_SLICE;				 //时间片初始化
+	task->nSuspendCount = 0;							 //任务挂起次数初始化
+	task->clearcb = NULL;                  //清理函数初始化为空
+	task->clearparam = NULL;							 //清理函数参数初始化为空
+	task->nDeleteFlag = 0;	               //删除标志清零 
+	task->unEventResult = EVENT_OK;				 //事件结果初始化为OK状态
+	task->unWaitFlagType = FLAGGROUP_SET_ALL;   //默认设置为事件全置一类型
+	task->unEventFlag = 0;						//默认事件标志位设置为零
+
+	OS_COM_SetBitmap(&tBitmap,prio);       //优先级位图设置
+
+	OS_COM_AddNode(&taskTable[prio],&task->tLinkNode);  //同优先级任务加入链表中
+
+	OS_EVENT_Init(task->pevent,EVENT_UNKNOWN);       //事件块初始化
 }
 
 /**
@@ -129,7 +132,7 @@ void OS_TASK_TriggerPendSVC(void)
  */
 void OS_TASK_Switch(void)
 {
-		MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
+	MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
 }
 
 /**
@@ -251,15 +254,15 @@ void OS_TASK_SuspendTask(p_tTask ptask)
 	{
 		if(0 == ptask->nSuspendCount)
 		{
-				ptask->tTaskState = ptask->tTaskState | TASK_SUSPENDSTATUS;
-				OS_TASK_TaskUnRdy(ptask);
-				ptask->nSuspendCount++;
-			  
-				if(currentTask == ptask)
-				{
-						OS_TASK_ExitCritical(unStatus);		
-						OS_TASK_Sched();
-				}
+			ptask->tTaskState = ptask->tTaskState | TASK_SUSPENDSTATUS;
+			OS_TASK_TaskUnRdy(ptask);
+			ptask->nSuspendCount++;
+		  
+			if(currentTask == ptask)
+			{
+					OS_TASK_ExitCritical(unStatus);		
+					OS_TASK_Sched();
+			}
 		}
 	}
 
