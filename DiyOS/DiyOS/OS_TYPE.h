@@ -16,6 +16,7 @@
 #define			ERR_AGR_INVALID			    -1			 /**< 输入参数非法 */
 #define			ERR_RESOURCE_UNAVLIABLE		-2           /**< 资源不可用 */
 #define			ERR_RESOURCE_OVER			-3			 /**< 资源溢出 */
+#define			ERR_OWNER 					-4			 /**< 互斥锁非本任务解锁出错 */
 
 
 #endif

@@ -68,9 +68,10 @@ typedef enum
 /**
 *@brief 任务状态
 */
-#define		  TASK_DELAYSTATUS        1     			/**< 任务延时状态 */
+#define		    TASK_DELAYSTATUS        1     			/**< 任务延时状态 */
 #define			TASK_SUSPENDSTATUS			2						/**< 任务挂起状态 */
 #define			TASK_DESTROYSTATUS			4						/**< 任务销毁状态 */
+#define			TASK_READYSTATUS					0x08			/**< 任务就绪状态 */
 #define			TASK_WAITEVENT					0x10000     /**< 任务事件等待 */
 
 
@@ -105,10 +106,10 @@ typedef struct _tTask{
 *@brief 任务信息数据结构
 */
 typedef struct _TASK_INFO{
-		int nDelayTick;									/**< 任务延时tick计数 */
-		unsigned int unPri;							/**< 任务优先级 */
-		unsigned int unTaskState;				/**< 任务当前状态码 */
-	  int nSlice;											/**< 任务时间片 */
+	int nDelayTick;									/**< 任务延时tick计数 */
+	unsigned int unPri;							/**< 任务优先级 */
+	unsigned int unTaskState;				/**< 任务当前状态码 */
+	int nSlice;											/**< 任务时间片 */
 }task_info_t,*p_task_info_t;
 
 extern tTask *currentTask;   /**< 当前任务全局变量 */

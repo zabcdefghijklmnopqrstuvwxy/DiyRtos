@@ -616,7 +616,7 @@ void OS_TASK_SelfDelete(void)
 
 	if(currentTask->clearcb)   //如果有清理函数进行清理处理
 	{
-			currentTask->clearcb(currentTask->clearparam);
+		currentTask->clearcb(currentTask->clearparam);
 	}
 
 	currentTask->tTaskState = currentTask->tTaskState | TASK_DESTROYSTATUS;

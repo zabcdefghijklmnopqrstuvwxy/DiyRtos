@@ -20,9 +20,9 @@
 */
 typedef struct _SEM_T
 {
-		event_block_t tEvent;				/**< 事件控制块  */
-		unsigned int unCount;			  /**< 信号量计数  */
-		unsigned int unMaxCount;    /**< 信号计数最大值  */
+	event_block_t tEvent;				/**< 事件控制块  */
+	unsigned int unCount;			  /**< 信号量计数  */
+	unsigned int unMaxCount;    /**< 信号计数最大值  */
 }sem_t,*p_sem_t;
 
 /**

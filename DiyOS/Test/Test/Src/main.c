@@ -74,41 +74,41 @@ unsigned int unShareCount;
 /* USER CODE END 0 */
 void delay(unsigned int unDelay)
 {
-		while(unDelay--);
+	while(unDelay--);
 }
 
 void task1(void *param)
 {
-		static unsigned int unFlag1 = 0;
-	  unsigned int unPri = 0;
-		while(1)
-		{
-				unFlag1 = 1;
-			  OS_TASK_Delay(7);
-				unFlag1 = 0;
-		//	  OS_TASK_Delay(23);         			  
-		}
+	static unsigned int unFlag1 = 0;
+	unsigned int unPri = 0;
+	while(1)
+	{
+			unFlag1 = 1;
+		  OS_TASK_Delay(7);
+			unFlag1 = 0;
+	//	  OS_TASK_Delay(23);         			  
+	}
 }
 
 void task2(void *param)
 {
-		static unsigned int unFlag2 = 0;
-  	while(1)
-		{
-				unFlag2 = 1;
+	static unsigned int unFlag2 = 0;
+	while(1)
+	{
+			unFlag2 = 1;
 	//		  OS_TASK_Delay(17);
-				unFlag2 = 0;
-		//	  OS_TASK_Delay(13);
-		}
+			unFlag2 = 0;
+	//	  OS_TASK_Delay(13);
+	}
 }
 
 void taskIdle(void *param)
 {
-	  static unsigned int unCnt = 0;
-		for(;;)
-		{
-			 unCnt++;
-		}
+	static unsigned int unCnt = 0;
+	for(;;)
+	{
+		 unCnt++;
+	}
 }
 
 /**
@@ -117,45 +117,44 @@ void taskIdle(void *param)
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
 	OS_TASK_OSInit();
-  /* USER CODE BEGIN 2 */
+	/* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
+	/* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-	
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+
 	OS_TASK_Init(&tTask1,task1,(void*)0x11111111,TASKPRI0,&task1Env[1024]);
 	OS_TASK_Init(&tTask2,task2,(void*)0x22222222,TASKPRI1,&task2Env[1024]);
 	OS_TASK_Init(&tTaskIdle,taskIdle,(void*)0x55555555,TASKPRI1,&taskIdleEnv[1024]);
-	
-	nextTask = OS_TASK_HighestReadyTask();
-  OS_TASK_SetSysTickPeriod(10);
-	
-  while (1);
 
+	nextTask = OS_TASK_HighestReadyTask();
+	OS_TASK_SetSysTickPeriod(10);
+
+	while (1);
 }
 
 /**
