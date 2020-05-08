@@ -150,6 +150,15 @@ Section Cross References
     os_mem.o(i.OS_MEM_InitBlock) refers to os_com.o(i.OS_COM_InitList) for OS_COM_InitList
     os_mem.o(i.OS_MEM_InitBlock) refers to os_com.o(i.OS_COM_AddNode) for OS_COM_AddNode
     os_mem.o(i.OS_MEM_InitBlock) refers to os_mem.o(.bss) for memhandle
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_task.o(i.OS_TASK_EnterCritical) for OS_TASK_EnterCritical
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_task.o(i.OS_TASK_SuspendTask) for OS_TASK_SuspendTask
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_task.o(i.OS_TASK_WakeUpTask) for OS_TASK_WakeUpTask
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_event.o(i.OS_EVENT_ClearAll) for OS_EVENT_ClearAll
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_task.o(i.OS_TASK_Sched) for OS_TASK_Sched
+    os_mutex.o(i.OS_MUTEX_Destroy) refers to os_task.o(.data) for currentTask
+    os_mutex.o(i.OS_MUTEX_GetInfo) refers to os_task.o(i.OS_TASK_EnterCritical) for OS_TASK_EnterCritical
+    os_mutex.o(i.OS_MUTEX_GetInfo) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
     os_mutex.o(i.OS_MUTEX_Init) refers to os_event.o(i.OS_EVENT_Init) for OS_EVENT_Init
     os_mutex.o(i.OS_MUTEX_Lock) refers to os_task.o(i.OS_TASK_EnterCritical) for OS_TASK_EnterCritical
     os_mutex.o(i.OS_MUTEX_Lock) refers to os_task.o(i.OS_TASK_ExitCritical) for OS_TASK_ExitCritical
@@ -548,6 +557,8 @@ Removing Unused input sections from the image.
     Removing os_mutex.o(.rev16_text), (4 bytes).
     Removing os_mutex.o(.revsh_text), (4 bytes).
     Removing os_mutex.o(.rrx_text), (6 bytes).
+    Removing os_mutex.o(i.OS_MUTEX_Destroy), (104 bytes).
+    Removing os_mutex.o(i.OS_MUTEX_GetInfo), (46 bytes).
     Removing os_mutex.o(i.OS_MUTEX_Init), (22 bytes).
     Removing os_mutex.o(i.OS_MUTEX_Lock), (136 bytes).
     Removing os_mutex.o(i.OS_MUTEX_TryLock), (88 bytes).
@@ -612,7 +623,7 @@ Removing Unused input sections from the image.
     Removing os_eflag.o(i.OS_EFLAG_Notify), (128 bytes).
     Removing os_eflag.o(i.OS_EFLAG_Wait), (128 bytes).
 
-245 unused section(s) (total 15334 bytes) removed from the image.
+247 unused section(s) (total 15484 bytes) removed from the image.
 
 ==============================================================================
 
@@ -963,20 +974,20 @@ Memory Map of the image
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x08000000   0x08000000   0x00000130   Data   RO            3    RESET               startup_stm32f103xe.o
-    0x08000130   0x08000130   0x00000000   Code   RO         1926  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x08000130   0x08000130   0x00000004   Code   RO         1933    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x08000134   0x08000134   0x00000004   Code   RO         1936    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x08000138   0x08000138   0x00000000   Code   RO         1938    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x08000138   0x08000138   0x00000000   Code   RO         1940    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x08000138   0x08000138   0x00000008   Code   RO         1941    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x08000140   0x08000140   0x00000000   Code   RO         1943    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x08000140   0x08000140   0x00000000   Code   RO         1945    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x08000140   0x08000140   0x00000004   Code   RO         1934    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
-    0x08000144   0x08000144   0x00000030   Code   RO         1447    .emb_text           os_task.o
+    0x08000130   0x08000130   0x00000000   Code   RO         1938  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x08000130   0x08000130   0x00000004   Code   RO         1945    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x08000134   0x08000134   0x00000004   Code   RO         1948    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x08000138   0x08000138   0x00000000   Code   RO         1950    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x08000138   0x08000138   0x00000000   Code   RO         1952    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x08000138   0x08000138   0x00000008   Code   RO         1953    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x08000140   0x08000140   0x00000000   Code   RO         1955    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x08000140   0x08000140   0x00000000   Code   RO         1957    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x08000140   0x08000140   0x00000004   Code   RO         1946    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x08000144   0x08000144   0x00000030   Code   RO         1459    .emb_text           os_task.o
     0x08000174   0x08000174   0x00000024   Code   RO            4    .text               startup_stm32f103xe.o
-    0x08000198   0x08000198   0x00000024   Code   RO         1931    .text               mc_w.l(memseta.o)
-    0x080001bc   0x080001bc   0x00000024   Code   RO         1947    .text               mc_w.l(init.o)
-    0x080001e0   0x080001e0   0x00000056   Code   RO         1957    .text               mc_w.l(__dczerorl2.o)
+    0x08000198   0x08000198   0x00000024   Code   RO         1943    .text               mc_w.l(memseta.o)
+    0x080001bc   0x080001bc   0x00000024   Code   RO         1959    .text               mc_w.l(init.o)
+    0x080001e0   0x080001e0   0x00000056   Code   RO         1969    .text               mc_w.l(__dczerorl2.o)
     0x08000236   0x08000236   0x00000004   Code   RO          164    i.BusFault_Handler  stm32f1xx_it.o
     0x0800023a   0x0800023a   0x00000002   Code   RO          165    i.DebugMon_Handler  stm32f1xx_it.o
     0x0800023c   0x0800023c   0x00000002   Code   RO           13    i.Error_Handler     main.o
@@ -997,48 +1008,48 @@ Memory Map of the image
     0x08000a9a   0x08000a9a   0x00000002   Code   RO          168    i.NMI_Handler       stm32f1xx_it.o
     0x08000a9c   0x08000a9c   0x00000010   Code   RO          804    i.NVIC_GetPriorityGrouping  stm32f1xx_hal_cortex.o
     0x08000aac   0x08000aac   0x00000028   Code   RO          805    i.NVIC_SetPriority  stm32f1xx_hal_cortex.o
-    0x08000ad4   0x08000ad4   0x00000024   Code   RO         1670    i.OS_COM_AddNode    os_com.o
-    0x08000af8   0x08000af8   0x0000000c   Code   RO         1671    i.OS_COM_ClrBitmap  os_com.o
-    0x08000b04   0x08000b04   0x0000002a   Code   RO         1672    i.OS_COM_DelNode    os_com.o
+    0x08000ad4   0x08000ad4   0x00000024   Code   RO         1682    i.OS_COM_AddNode    os_com.o
+    0x08000af8   0x08000af8   0x0000000c   Code   RO         1683    i.OS_COM_ClrBitmap  os_com.o
+    0x08000b04   0x08000b04   0x0000002a   Code   RO         1684    i.OS_COM_DelNode    os_com.o
     0x08000b2e   0x08000b2e   0x00000002   PAD
-    0x08000b30   0x08000b30   0x00000054   Code   RO         1673    i.OS_COM_GetFirstBit  os_com.o
-    0x08000b84   0x08000b84   0x00000006   Code   RO         1674    i.OS_COM_GetNodeCount  os_com.o
-    0x08000b8a   0x08000b8a   0x00000016   Code   RO         1676    i.OS_COM_InitList   os_com.o
-    0x08000ba0   0x08000ba0   0x0000000c   Code   RO         1678    i.OS_COM_SetBitmap  os_com.o
-    0x08000bac   0x08000bac   0x00000012   Code   RO         1748    i.OS_EVENT_Init     os_event.o
+    0x08000b30   0x08000b30   0x00000054   Code   RO         1685    i.OS_COM_GetFirstBit  os_com.o
+    0x08000b84   0x08000b84   0x00000006   Code   RO         1686    i.OS_COM_GetNodeCount  os_com.o
+    0x08000b8a   0x08000b8a   0x00000016   Code   RO         1688    i.OS_COM_InitList   os_com.o
+    0x08000ba0   0x08000ba0   0x0000000c   Code   RO         1690    i.OS_COM_SetBitmap  os_com.o
+    0x08000bac   0x08000bac   0x00000012   Code   RO         1760    i.OS_EVENT_Init     os_event.o
     0x08000bbe   0x08000bbe   0x00000002   PAD
-    0x08000bc0   0x08000bc0   0x00000030   Code   RO         1448    i.OS_TASK_Delay     os_task.o
-    0x08000bf0   0x08000bf0   0x00000028   Code   RO         1450    i.OS_TASK_DelayWait  os_task.o
-    0x08000c18   0x08000c18   0x00000024   Code   RO         1451    i.OS_TASK_DelayWakeup  os_task.o
-    0x08000c3c   0x08000c3c   0x0000000c   Code   RO         1453    i.OS_TASK_EnterCritical  os_task.o
-    0x08000c48   0x08000c48   0x0000000a   Code   RO         1454    i.OS_TASK_ExitCritical  os_task.o
+    0x08000bc0   0x08000bc0   0x00000030   Code   RO         1460    i.OS_TASK_Delay     os_task.o
+    0x08000bf0   0x08000bf0   0x00000028   Code   RO         1462    i.OS_TASK_DelayWait  os_task.o
+    0x08000c18   0x08000c18   0x00000024   Code   RO         1463    i.OS_TASK_DelayWakeup  os_task.o
+    0x08000c3c   0x08000c3c   0x0000000c   Code   RO         1465    i.OS_TASK_EnterCritical  os_task.o
+    0x08000c48   0x08000c48   0x0000000a   Code   RO         1466    i.OS_TASK_ExitCritical  os_task.o
     0x08000c52   0x08000c52   0x00000002   PAD
-    0x08000c54   0x08000c54   0x00000024   Code   RO         1457    i.OS_TASK_HighestReadyTask  os_task.o
-    0x08000c78   0x08000c78   0x000000dc   Code   RO         1458    i.OS_TASK_Init      os_task.o
-    0x08000d54   0x08000d54   0x00000048   Code   RO         1460    i.OS_TASK_OSInit    os_task.o
-    0x08000d9c   0x08000d9c   0x00000040   Code   RO         1463    i.OS_TASK_Sched     os_task.o
-    0x08000ddc   0x08000ddc   0x0000000c   Code   RO         1466    i.OS_TASK_ScheduleInit  os_task.o
-    0x08000de8   0x08000de8   0x00000058   Code   RO         1469    i.OS_TASK_SetSysTickPeriod  os_task.o
-    0x08000e40   0x08000e40   0x00000010   Code   RO         1471    i.OS_TASK_Switch    os_task.o
-    0x08000e50   0x08000e50   0x000000a8   Code   RO         1472    i.OS_TASK_SystemTickHandler  os_task.o
-    0x08000ef8   0x08000ef8   0x00000028   Code   RO         1473    i.OS_TASK_TaskRdy   os_task.o
-    0x08000f20   0x08000f20   0x0000003c   Code   RO         1474    i.OS_TASK_TaskUnRdy  os_task.o
+    0x08000c54   0x08000c54   0x00000024   Code   RO         1469    i.OS_TASK_HighestReadyTask  os_task.o
+    0x08000c78   0x08000c78   0x000000dc   Code   RO         1470    i.OS_TASK_Init      os_task.o
+    0x08000d54   0x08000d54   0x00000048   Code   RO         1472    i.OS_TASK_OSInit    os_task.o
+    0x08000d9c   0x08000d9c   0x00000040   Code   RO         1475    i.OS_TASK_Sched     os_task.o
+    0x08000ddc   0x08000ddc   0x0000000c   Code   RO         1478    i.OS_TASK_ScheduleInit  os_task.o
+    0x08000de8   0x08000de8   0x00000058   Code   RO         1481    i.OS_TASK_SetSysTickPeriod  os_task.o
+    0x08000e40   0x08000e40   0x00000010   Code   RO         1483    i.OS_TASK_Switch    os_task.o
+    0x08000e50   0x08000e50   0x000000a8   Code   RO         1484    i.OS_TASK_SystemTickHandler  os_task.o
+    0x08000ef8   0x08000ef8   0x00000028   Code   RO         1485    i.OS_TASK_TaskRdy   os_task.o
+    0x08000f20   0x08000f20   0x0000003c   Code   RO         1486    i.OS_TASK_TaskUnRdy  os_task.o
     0x08000f5c   0x08000f5c   0x00000028   Code   RO          499    i.RCC_Delay         stm32f1xx_hal_rcc.o
     0x08000f84   0x08000f84   0x00000002   Code   RO          169    i.SVC_Handler       stm32f1xx_it.o
-    0x08000f86   0x08000f86   0x00000008   Code   RO         1477    i.SysTick_Handler   os_task.o
+    0x08000f86   0x08000f86   0x00000008   Code   RO         1489    i.SysTick_Handler   os_task.o
     0x08000f8e   0x08000f8e   0x00000066   Code   RO           15    i.SystemClock_Config  main.o
     0x08000ff4   0x08000ff4   0x00000058   Code   RO         1246    i.SystemInit        system_stm32f1xx.o
     0x0800104c   0x0800104c   0x00000004   Code   RO          170    i.UsageFault_Handler  stm32f1xx_it.o
-    0x08001050   0x08001050   0x0000000e   Code   RO         1951    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0800105e   0x0800105e   0x00000002   Code   RO         1952    i.__scatterload_null  mc_w.l(handlers.o)
-    0x08001060   0x08001060   0x0000000e   Code   RO         1953    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x08001050   0x08001050   0x0000000e   Code   RO         1963    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x0800105e   0x0800105e   0x00000002   Code   RO         1964    i.__scatterload_null  mc_w.l(handlers.o)
+    0x08001060   0x08001060   0x0000000e   Code   RO         1965    i.__scatterload_zeroinit  mc_w.l(handlers.o)
     0x0800106e   0x0800106e   0x00000002   PAD
     0x08001070   0x08001070   0x00000084   Code   RO           17    i.main              main.o
     0x080010f4   0x080010f4   0x0000001c   Code   RO           18    i.task1             main.o
     0x08001110   0x08001110   0x00000014   Code   RO           19    i.task2             main.o
     0x08001124   0x08001124   0x00000014   Code   RO           20    i.taskIdle          main.o
     0x08001138   0x08001138   0x00000018   Data   RO         1247    .constdata          system_stm32f1xx.o
-    0x08001150   0x08001150   0x00000020   Data   RO         1949    Region$$Table       anon$$obj.o
+    0x08001150   0x08001150   0x00000020   Data   RO         1961    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08001170, Size: 0x00003798, Max: 0x00010000, ABSOLUTE, COMPRESSED[0x00000024])
@@ -1049,10 +1060,10 @@ Memory Map of the image
     0x20000010   COMPRESSED   0x00000009   Data   RW          346    .data               stm32f1xx_hal.o
     0x20000019   COMPRESSED   0x00000003   PAD
     0x2000001c   COMPRESSED   0x00000004   Data   RW         1248    .data               system_stm32f1xx.o
-    0x20000020   COMPRESSED   0x00000010   Data   RW         1479    .data               os_task.o
-    0x20000030   COMPRESSED   0x00000100   Data   RW         1679    .data               os_com.o
+    0x20000020   COMPRESSED   0x00000010   Data   RW         1491    .data               os_task.o
+    0x20000030   COMPRESSED   0x00000100   Data   RW         1691    .data               os_com.o
     0x20000130        -       0x000030d8   Zero   RW           21    .bss                main.o
-    0x20003208        -       0x0000018c   Zero   RW         1478    .bss                os_task.o
+    0x20003208        -       0x0000018c   Zero   RW         1490    .bss                os_task.o
     0x20003394   COMPRESSED   0x00000004   PAD
     0x20003398        -       0x00000400   Zero   RW            1    STACK               startup_stm32f103xe.o
 

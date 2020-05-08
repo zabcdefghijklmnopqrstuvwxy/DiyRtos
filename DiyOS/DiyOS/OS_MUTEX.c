@@ -72,7 +72,7 @@ int OS_MUTEX_Lock(p_mutex_t pmutex,unsigned int unTimeOut)
 
 /**
  * @brief 互斥锁上锁
- * @param pmutex 互斥锁指针，unTimeOut 超时时间
+ * @param pmutex 互斥锁指针
  * @note 互斥锁上锁，试着上锁，如果不成功则直接返回
  * @retval 无
  */
@@ -102,7 +102,6 @@ int OS_MUTEX_TryLock(p_mutex_t pmutex)
 		return ERR_RESOURCE_UNAVLIABLE;
 	}	
 }
-
 
 /**
  * @brief 互斥锁解锁
@@ -168,3 +167,63 @@ int OS_MUTEX_UnLock(p_mutex_t pmutex)
 	return ERR_OK;
 }
 
+/**
+ * @brief 互斥锁销毁
+ * @param pmutex 互斥锁指针
+ * @note 互斥锁销毁处理
+ * @retval 无
+ */
+int OS_MUTEX_Destroy(p_mutex_t pmutex)
+{
+	unsigned int unStatus;
+	unsigned int unCnt = 0;
+	unStatus = OS_TASK_EnterCritical();
+	
+	if(pmutex->unLockCnt > 0)
+	{
+		if(pmutex->unOriPri != pmutex->ptask->unPri)
+		{
+			if(pmutex->ptask->tTaskState == TASK_READYSTATUS)
+			{
+				OS_TASK_SuspendTask(pmutex->ptask);
+				pmutex->ptask->unPri = currentTask->unPri;
+				OS_TASK_WakeUpTask(pmutex->ptask);									
+			}
+			else
+			{
+				currentTask->unPri = pmutex->unOriPri;
+			}		
+		}
+		
+		unCnt = OS_EVENT_ClearAll(&pmutex->tEvent, NULL, ERR_OK);
+		
+		if(unCnt > 0)
+		{
+			OS_TASK_ExitCritical(unStatus);
+			OS_TASK_Sched();
+		}
+	}
+	
+	OS_TASK_ExitCritical(unStatus);
+	return ERR_OK;
+}
+
+
+/**
+ * @brief 互斥锁信息查询
+ * @param pmutex 互斥锁指针
+ * @note 互斥锁信息获取
+ * @retval 无
+ */
+void OS_MUTEX_GetInfo(p_mutex_t pmutex,p_mutex_info_t pinfo)
+{
+	unsigned int unStatus;
+	unStatus = OS_TASK_EnterCritical();
+	
+	pinfo->poritask = pmutex->ptask;
+	pinfo->unInheritPri = pmutex->ptask ? pmutex->ptask->unPri : NULL;
+	pinfo->unLockCnt = pmutex->unLockCnt;
+	pinfo->unOriPri = pmutex->unOriPri;
+	
+	OS_TASK_ExitCritical(unStatus);
+}
